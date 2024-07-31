@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useEffect, useState } from "react";
+import { createContext, useCallback, useEffect, useState } from "react";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
 import { getCsrfToken, signIn, signOut, useSession } from "next-auth/react";
 import { SiweMessage } from "siwe";
@@ -12,42 +12,41 @@ import {
 } from "wagmi";
 import { zkSync, zkSyncSepoliaTestnet } from "viem/zksync";
 import { useToast } from "@chakra-ui/react";
+import { Session } from "next-auth";
 
 interface AuthContextValues {
   address: `0x${string}`;
+  session: Session | null;
   isLoading: boolean;
   signedIn: boolean;
+  handleSignIn: () => void;
   handleSignOut: () => void;
 }
 
 const AuthContext = createContext({
   address: `0x0`,
+  session: null,
   isLoading: false,
   signedIn: false,
+  handleSignIn: async () => {},
   handleSignOut: async () => {},
 } as AuthContextValues);
 
 const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const toast = useToast();
+
   const { data: session, status } = useSession();
-  const { address, chainId, isConnected } = useAccount();
+  const { address, chainId, isConnected, isDisconnected } = useAccount();
   const { signMessageAsync } = useSignMessage();
-  const { openConnectModal } = useConnectModal();
-  const { disconnectAsync } = useDisconnect();
   const { switchChain } = useSwitchChain();
 
   const isLoading = status === "loading";
   const [signedIn, setSignedIn] = useState(false);
 
-  const handleSignIn = async () => {
+  const handleSignIn = useCallback(async () => {
     try {
       if (!address || !isConnected) {
-        if (openConnectModal) {
-          openConnectModal();
-          return;
-        } else {
-          throw new Error("Please connect your wallet first.");
-        }
+        throw new Error("Please connect your wallet first.");
       }
 
       const callbackUrl = "/";
@@ -73,6 +72,24 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         redirect: false,
         callbackUrl: callbackUrl,
       });
+
+      if (!response) {
+        throw new Error("Failed to sign in.");
+      }
+
+      if (response.ok) {
+        toast({
+          title: "Success",
+          description: "You have successfully signed in.",
+          status: "success",
+          duration: 5000,
+          isClosable: true,
+        });
+      }
+
+      if (response.error) {
+        throw new Error(response.error);
+      }
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error";
@@ -84,16 +101,15 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         isClosable: true,
       });
     }
-  };
+  }, [address, chainId, isConnected, signMessageAsync, toast]);
 
-  const handleSignOut = async () => {
+  const handleSignOut = useCallback(async () => {
     if (!isConnected) {
       return;
     }
 
-    await disconnectAsync();
-    signOut({ callbackUrl: "/" });
-  };
+    await signOut({ callbackUrl: "/" });
+  }, [isConnected]);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -109,30 +125,30 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       return;
     }
 
-    if (chainId == zkSync.id || chainId == zkSyncSepoliaTestnet.id) {
-      // If the chain is zkSync or zkSync Sepolia Testnet
-      // Check if the user is connected and signed in
-      // If the user is connected but not signed in, sign in the user
-      if (isConnected && !session) {
-        handleSignIn();
-      } else if (!isConnected) {
-        handleSignOut();
-      }
-    } else {
+    if (chainId != zkSync.id && chainId != zkSyncSepoliaTestnet.id) {
       // Switch to zkSync Sepolia Testnet if the chain is not zkSync or zkSync Sepolia Testnet
       console.log("Switching chain to zkSync Sepolia Testnet...");
       switchChain({
         chainId: zkSyncSepoliaTestnet.id,
       });
     }
-  }, [chainId, isConnected, session]);
+  }, [chainId]);
+
+  useEffect(() => {
+    if (signedIn && isDisconnected) {
+      setSignedIn(false);
+      handleSignOut();
+    }
+  }, [signedIn, isDisconnected]);
 
   return (
     <AuthContext.Provider
       value={{
         address: address ? address : `0x0`,
+        session,
         isLoading,
         signedIn,
+        handleSignIn,
         handleSignOut,
       }}
     >

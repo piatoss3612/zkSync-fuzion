@@ -40,10 +40,13 @@ export const authOptions: AuthOptions = {
             nonce: csrf,
           });
 
-          if (!result.success) throw new Error("Invalid Signature");
-          return {
-            id: siwe.address,
-          };
+          if (result.success) {
+            return {
+              id: siwe.address,
+            };
+          }
+
+          return null;
         } catch (error) {
           console.log(error);
           return null;
