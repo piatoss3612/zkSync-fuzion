@@ -6,7 +6,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { zkSync, zkSyncSepoliaTestnet } from "viem/zksync";
 import { WagmiProvider } from "wagmi";
-import "@rainbow-me/rainbowkit/styles.css";
 import { SessionProvider } from "next-auth/react";
 import { AuthProvider } from "@/context";
 

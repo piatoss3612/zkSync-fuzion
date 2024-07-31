@@ -1,15 +1,9 @@
 "use client";
 
 import { createContext, useCallback, useEffect, useState } from "react";
-import { useConnectModal } from "@rainbow-me/rainbowkit";
 import { getCsrfToken, signIn, signOut, useSession } from "next-auth/react";
 import { SiweMessage } from "siwe";
-import {
-  useAccount,
-  useDisconnect,
-  useSignMessage,
-  useSwitchChain,
-} from "wagmi";
+import { useAccount, useSignMessage, useSwitchChain } from "wagmi";
 import { zkSync, zkSyncSepoliaTestnet } from "viem/zksync";
 import { useToast } from "@chakra-ui/react";
 import { Session } from "next-auth";
@@ -18,7 +12,8 @@ interface AuthContextValues {
   address: `0x${string}`;
   session: Session | null;
   isLoading: boolean;
-  signedIn: boolean;
+  isWalletConnected: boolean;
+  isSignedIn: boolean;
   handleSignIn: () => void;
   handleSignOut: () => void;
 }
@@ -27,7 +22,8 @@ const AuthContext = createContext({
   address: `0x0`,
   session: null,
   isLoading: false,
-  signedIn: false,
+  isWalletConnected: false,
+  isSignedIn: false,
   handleSignIn: async () => {},
   handleSignOut: async () => {},
 } as AuthContextValues);
@@ -36,12 +32,20 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const toast = useToast();
 
   const { data: session, status } = useSession();
-  const { address, chainId, isConnected, isDisconnected } = useAccount();
+  const {
+    address,
+    chainId,
+    isConnected,
+    isDisconnected,
+    isConnecting,
+    isReconnecting,
+  } = useAccount();
   const { signMessageAsync } = useSignMessage();
   const { switchChain } = useSwitchChain();
 
-  const isLoading = status === "loading";
-  const [signedIn, setSignedIn] = useState(false);
+  const isLoading = status === "loading" || isConnecting || isReconnecting;
+  const isWalletConnected = isConnected;
+  const isSignedIn = !!session && status === "authenticated";
 
   const handleSignIn = useCallback(async () => {
     try {
@@ -68,9 +72,9 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       const response = await signIn("ethereum", {
         message: JSON.stringify(message),
-        signature: signature,
+        signature,
         redirect: false,
-        callbackUrl: callbackUrl,
+        callbackUrl,
       });
 
       if (!response) {
@@ -104,20 +108,14 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, [address, chainId, isConnected, signMessageAsync, toast]);
 
   const handleSignOut = useCallback(async () => {
-    if (!isConnected) {
+    // Do nothing if the user is not signed in
+    if (!isSignedIn) {
       return;
     }
 
+    // Sign out and redirect to the home page
     await signOut({ callbackUrl: "/" });
-  }, [isConnected]);
-
-  useEffect(() => {
-    if (status === "unauthenticated") {
-      setSignedIn(false);
-    } else if (status === "authenticated") {
-      setSignedIn(true);
-    }
-  }, [status]);
+  }, [isSignedIn, isConnected]);
 
   useEffect(() => {
     // chainId is not available yet
@@ -125,8 +123,8 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       return;
     }
 
+    // Switch to zkSync Sepolia Testnet if the chain is not zkSync or zkSync Sepolia Testnet
     if (chainId != zkSync.id && chainId != zkSyncSepoliaTestnet.id) {
-      // Switch to zkSync Sepolia Testnet if the chain is not zkSync or zkSync Sepolia Testnet
       console.log("Switching chain to zkSync Sepolia Testnet...");
       switchChain({
         chainId: zkSyncSepoliaTestnet.id,
@@ -135,11 +133,13 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, [chainId]);
 
   useEffect(() => {
-    if (signedIn && isDisconnected) {
-      setSignedIn(false);
-      handleSignOut();
+    // Sign out if the user is signed in but disconnected or the address is different
+    if (isSignedIn) {
+      if (isDisconnected || (session as any).user.address !== address) {
+        handleSignOut();
+      }
     }
-  }, [signedIn, isDisconnected]);
+  }, [address, isDisconnected, isSignedIn, session]);
 
   return (
     <AuthContext.Provider
@@ -147,7 +147,8 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         address: address ? address : `0x0`,
         session,
         isLoading,
-        signedIn,
+        isWalletConnected,
+        isSignedIn,
         handleSignIn,
         handleSignOut,
       }}
