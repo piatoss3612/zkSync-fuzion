@@ -7,6 +7,8 @@ import { useEffect, useState } from "react";
 import { zkSync, zkSyncSepoliaTestnet } from "viem/zksync";
 import { WagmiProvider } from "wagmi";
 import "@rainbow-me/rainbowkit/styles.css";
+import { SessionProvider } from "next-auth/react";
+import { AuthProvider } from "@/context";
 
 const config = getDefaultConfig({
   appName: "Fuzion",
@@ -27,9 +29,17 @@ const Providers = ({ children }: { children: React.ReactNode }) => {
     <ChakraProvider>
       <WagmiProvider config={config}>
         <QueryClientProvider client={queryClient}>
-          <RainbowKitProvider coolMode initialChain={zkSyncSepoliaTestnet}>
-            {mounted && children}
-          </RainbowKitProvider>
+          <SessionProvider>
+            <AuthProvider>
+              <RainbowKitProvider
+                showRecentTransactions={true}
+                coolMode
+                initialChain={zkSyncSepoliaTestnet}
+              >
+                {mounted && children}
+              </RainbowKitProvider>
+            </AuthProvider>
+          </SessionProvider>
         </QueryClientProvider>
       </WagmiProvider>
     </ChakraProvider>
