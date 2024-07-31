@@ -28,16 +28,14 @@ const Providers = ({ children }: { children: React.ReactNode }) => {
     <ChakraProvider>
       <WagmiProvider config={config}>
         <QueryClientProvider client={queryClient}>
-          <SessionProvider>
-            <AuthProvider>
-              <RainbowKitProvider
-                showRecentTransactions={true}
-                coolMode
-                initialChain={zkSyncSepoliaTestnet}
-              >
-                {mounted && children}
-              </RainbowKitProvider>
-            </AuthProvider>
+          <SessionProvider refetchInterval={0}>
+            <RainbowKitProvider
+              showRecentTransactions={true}
+              coolMode
+              initialChain={zkSyncSepoliaTestnet}
+            >
+              <AuthProvider>{mounted && children}</AuthProvider>
+            </RainbowKitProvider>
           </SessionProvider>
         </QueryClientProvider>
       </WagmiProvider>
