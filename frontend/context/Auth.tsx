@@ -12,6 +12,7 @@ interface AuthContextValues {
   address: `0x${string}`;
   session: Session | null;
   isLoading: boolean;
+  isWalletConnected: boolean;
   isSignedIn: boolean;
   handleSignIn: () => void;
   handleSignOut: () => void;
@@ -21,6 +22,7 @@ const AuthContext = createContext({
   address: `0x0`,
   session: null,
   isLoading: false,
+  isWalletConnected: false,
   isSignedIn: false,
   handleSignIn: async () => {},
   handleSignOut: async () => {},
@@ -30,11 +32,19 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const toast = useToast();
 
   const { data: session, status } = useSession();
-  const { address, chainId, isConnected, isDisconnected } = useAccount();
+  const {
+    address,
+    chainId,
+    isConnected,
+    isDisconnected,
+    isConnecting,
+    isReconnecting,
+  } = useAccount();
   const { signMessageAsync } = useSignMessage();
   const { switchChain } = useSwitchChain();
 
-  const isLoading = status === "loading";
+  const isLoading = status === "loading" || isConnecting || isReconnecting;
+  const isWalletConnected = isConnected;
   const isSignedIn = !!session && status === "authenticated";
 
   const handleSignIn = useCallback(async () => {
@@ -137,6 +147,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         address: address ? address : `0x0`,
         session,
         isLoading,
+        isWalletConnected,
         isSignedIn,
         handleSignIn,
         handleSignOut,
