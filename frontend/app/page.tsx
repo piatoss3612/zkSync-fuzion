@@ -2,7 +2,6 @@
 
 import { useAuth } from "@/hooks";
 import { Box, Button, Center, Stack, Text } from "@chakra-ui/react";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useSession } from "next-auth/react";
 import { useState } from "react";
 
@@ -31,41 +30,36 @@ export default function Home() {
   };
 
   return (
-    <Box display="flex" flexDirection="column" minH="100vh" p={4} bg="gray.100">
-      <Center flexGrow={1}>
-        <Stack spacing={4} align="center">
-          <ConnectButton />
-          {isWalletConnected && (
-            <>
-              <Box>
-                <Button
-                  colorScheme="blue"
-                  onClick={isSignedIn ? handleSignOut : handleSignIn}
-                  isLoading={isLoading}
-                >
-                  {isSignedIn ? "Sign out" : "Sign in"}
-                </Button>
-              </Box>
-              {session ? (
-                <Box>
-                  <p>Signed in as {session.user!.name}</p>
-                  <p>Expires: {session.expires}</p>
-                </Box>
-              ) : (
-                <Box>
-                  <p>Not signed in</p>
-                </Box>
-              )}
-              <Stack spacing={4} align="center">
-                <Button colorScheme="blue" onClick={handleProtected}>
-                  Protected
-                </Button>
-                {message && <Text>{message}</Text>}
-              </Stack>
-            </>
+    <Stack spacing={4} align="center" p={4} mt={4}>
+      {isWalletConnected && (
+        <>
+          <Box>
+            <Button
+              colorScheme="blue"
+              onClick={isSignedIn ? handleSignOut : handleSignIn}
+              isLoading={isLoading}
+            >
+              {isSignedIn ? "Sign out" : "Sign in"}
+            </Button>
+          </Box>
+          {session ? (
+            <Box>
+              <p>Signed in as {session.user!.name}</p>
+              <p>Expires: {session.expires}</p>
+            </Box>
+          ) : (
+            <Box>
+              <p>Not signed in</p>
+            </Box>
           )}
-        </Stack>
-      </Center>
-    </Box>
+          <Stack spacing={4} align="center">
+            <Button colorScheme="blue" onClick={handleProtected}>
+              Protected
+            </Button>
+            {message && <Text>{message}</Text>}
+          </Stack>
+        </>
+      )}
+    </Stack>
   );
 }
