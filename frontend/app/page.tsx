@@ -1,19 +1,13 @@
 "use client";
 
 import { useAuth } from "@/hooks";
-import { Box, Button, Center, Stack, Text } from "@chakra-ui/react";
+import { Box, Button, Stack, Text } from "@chakra-ui/react";
 import { useSession } from "next-auth/react";
 import { useState } from "react";
 
 export default function Home() {
   const { data: session } = useSession();
-  const {
-    isWalletConnected,
-    isSignedIn,
-    isLoading,
-    handleSignIn,
-    handleSignOut,
-  } = useAuth();
+  const { isWalletConnected } = useAuth();
 
   const [message, setMessage] = useState<string | null>(null);
 
@@ -33,15 +27,6 @@ export default function Home() {
     <Stack spacing={4} align="center" p={4} mt={4}>
       {isWalletConnected && (
         <>
-          <Box>
-            <Button
-              colorScheme="blue"
-              onClick={isSignedIn ? handleSignOut : handleSignIn}
-              isLoading={isLoading}
-            >
-              {isSignedIn ? "Sign out" : "Sign in"}
-            </Button>
-          </Box>
           {session ? (
             <Box>
               <p>Signed in as {session.user!.name}</p>

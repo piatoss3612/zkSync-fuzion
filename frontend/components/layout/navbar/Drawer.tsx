@@ -5,12 +5,10 @@ import {
   DrawerHeader,
   DrawerBody,
   VStack,
-  Text,
 } from "@chakra-ui/react";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { NavItem } from "@/types";
-import { useRouter } from "next/navigation";
 import NavigationItem from "./NavigationItem";
+import WalletButton from "./WalletButton";
 
 interface DrawerProps {
   isOpen: boolean;
@@ -31,16 +29,20 @@ const Drawer = ({
     <D isOpen={isOpen} placement="left" onClose={onClose}>
       <DrawerOverlay />
       <DrawerContent>
-        <DrawerHeader borderBottomWidth="1px">Menu</DrawerHeader>
-        <DrawerBody mt={2}>
-          <VStack spacing="24px">
-            <ConnectButton />
+        <DrawerHeader>
+          <WalletButton />
+        </DrawerHeader>
+        <DrawerBody>
+          <VStack spacing={8}>
             {navItems.map((item) => (
               <NavigationItem
                 key={item.name}
                 item={item}
                 activePath={activePath}
-                handleNavigation={handleNavigation}
+                handleNavigation={(path: string) => {
+                  handleNavigation(path);
+                  onClose();
+                }}
               />
             ))}
           </VStack>

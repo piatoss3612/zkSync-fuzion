@@ -2,13 +2,13 @@
 
 import { Flex, Box, useDisclosure, IconButton } from "@chakra-ui/react";
 import { HamburgerIcon } from "@chakra-ui/icons";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
 import Logo from "./Logo";
 import { NavItem } from "@/types";
 import Navigation from "./Navigation";
 import Drawer from "./Drawer";
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import WalletButton from "./WalletButton";
 
 const Navbar = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -51,7 +51,7 @@ const Navbar = () => {
         handleNavigation={handleNavigation}
       />
       <Box display={{ base: "none", lg: "block" }}>
-        <ConnectButton />
+        <WalletButton />
       </Box>
       <IconButton
         display={{ lg: "none" }}
