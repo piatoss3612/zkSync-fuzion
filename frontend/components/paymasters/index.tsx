@@ -6,19 +6,21 @@ import {
   InputLeftElement,
   Input,
   Icon,
+  HStack,
+  VStack,
 } from "@chakra-ui/react";
 import { useRouter } from "next/navigation";
 import { Search2Icon } from "@chakra-ui/icons";
 import { BsPlusLg } from "react-icons/bs";
+import PaymasterList from "./list";
 
 const Paymasters = () => {
   const router = useRouter();
 
   return (
     <Container maxW={"6xl"} px="1.6rem">
-      <Stack spacing={8} direction={"column"} py={12}>
-        <Stack
-          direction={"row"}
+      <VStack spacing={8} py={12}>
+        <HStack
           justifyContent={{ base: "center", md: "space-between" }}
           w="full"
           spacing={4}
@@ -38,8 +40,9 @@ const Paymasters = () => {
           >
             New Paymaster
           </Button>
-        </Stack>
-      </Stack>
+        </HStack>
+        <PaymasterList />
+      </VStack>
     </Container>
   );
 };
