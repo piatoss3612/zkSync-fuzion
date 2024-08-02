@@ -26,10 +26,9 @@ const Paymasters = () => {
           spacing={4}
         >
           <InputGroup size="md" w={"auto"}>
-            <InputLeftElement
-              pointerEvents="none"
-              children={<Search2Icon color="gray.500" />}
-            />
+            <InputLeftElement pointerEvents="none">
+              <Search2Icon color="gray.500" />
+            </InputLeftElement>
             <Input type="text" placeholder="Search" />
           </InputGroup>
           <Button
