@@ -1,7 +1,9 @@
 "use client";
 
+import PaymasterCreateForm from "@/components/paymasters/create";
+
 const Page = () => {
-  return <div>create</div>;
+  return <PaymasterCreateForm />;
 };
 
 export default Page;
