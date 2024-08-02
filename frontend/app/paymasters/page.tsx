@@ -1,7 +1,9 @@
-import React from "react";
+"use client";
+
+import Paymasters from "@/components/paymasters";
 
 const Page = () => {
-  return <div>Paymasters</div>;
+  return <Paymasters />;
 };
 
 export default Page;
