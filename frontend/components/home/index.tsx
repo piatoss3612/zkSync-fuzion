@@ -35,7 +35,7 @@ const Home = () => {
         <Text color={"gray.600"} maxW={"2xl"}>
           Fusion is a simple and easy to use tool to deploy and manage your
           zkSync Paymasters. Modularity and simplicity are the core of Fusion.
-          Get started by creating your first Paymaster. It's free!
+          Get started by creating your first Paymaster. It&apos;s free!
         </Text>
         <Button
           rounded={"full"}
