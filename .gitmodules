@@ -1,3 +1,9 @@
 [submodule "zksync/lib/forge-std"]
 	path = zksync/lib/forge-std
 	url = https://github.com/foundry-rs/forge-std
+[submodule "zksync/lib/era-system-contracts"]
+	path = zksync/lib/era-system-contracts
+	url = https://github.com/matter-labs/era-system-contracts
+[submodule "zksync/lib/openzeppelin-contracts"]
+	path = zksync/lib/openzeppelin-contracts
+	url = https://github.com/OpenZeppelin/openzeppelin-contracts
