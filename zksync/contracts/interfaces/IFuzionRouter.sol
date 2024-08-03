@@ -9,12 +9,15 @@ interface IFuzionRouter {
 
     event PaymasterFactorySet(IPaymasterFactory indexed paymasterFactory);
     event PaymasterCreated(
-        IPaymasterFactory indexed paymasterFactory, address indexed paymaster, address indexed owner
+        IPaymasterFactory indexed paymasterFactory, address indexed paymaster, address indexed owner, string name
     );
 
     function paymasterFactoryAvailable(IPaymasterFactory _paymasterFactory) external view returns (bool);
     function setPaymasterFactory(IPaymasterFactory _paymasterFactory) external;
-    function createPaymaster(IPaymasterFactory _paymasterFactory, address _owner, bytes calldata _initData)
-        external
-        payable;
+    function createPaymaster(
+        IPaymasterFactory _paymasterFactory,
+        address _owner,
+        string calldata _alias,
+        bytes calldata _initData
+    ) external payable;
 }

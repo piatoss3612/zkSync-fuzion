@@ -7,5 +7,6 @@ interface IPaymasterFactory {
     event PaymasterCreated(address indexed paymaster, address indexed owner);
 
     function name() external pure returns (string memory);
+    function description() external pure returns (string memory);
     function createPaymaster(address _owner, bytes calldata _initData) external payable returns (IPaymaster);
 }

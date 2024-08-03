@@ -10,6 +10,10 @@ contract GaslessPaymasterFactory is IPaymasterFactory {
         return "GaslessPaymasterFactory";
     }
 
+    function description() external pure returns (string memory) {
+        return "Factory for deploying basic GaslessPaymaster contracts";
+    }
+
     function createPaymaster(address _owner, bytes calldata) external payable returns (IPaymaster paymaster) {
         paymaster = new GaslessPaymaster{value: msg.value}(_owner);
 

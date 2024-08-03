@@ -28,17 +28,18 @@ contract FuzionRouter is IFuzionRouter, Ownable {
         emit PaymasterFactorySet(_paymasterFactory);
     }
 
-    function createPaymaster(IPaymasterFactory _paymasterFactory, address _owner, bytes calldata _initData)
-        external
-        payable
-        override
-    {
+    function createPaymaster(
+        IPaymasterFactory _paymasterFactory,
+        address _owner,
+        string calldata _alias,
+        bytes calldata _initData
+    ) external payable override {
         if (!_paymasterFactoryAvailable(_paymasterFactory)) {
             revert FuzionRouter__PaymasterFactoryNotAvailable();
         }
 
         IPaymaster paymaster = _paymasterFactory.createPaymaster{value: msg.value}(_owner, _initData);
 
-        emit PaymasterCreated(_paymasterFactory, address(paymaster), _owner);
+        emit PaymasterCreated(_paymasterFactory, address(paymaster), _owner, _alias);
     }
 }
