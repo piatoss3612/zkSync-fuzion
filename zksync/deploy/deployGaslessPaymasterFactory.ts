@@ -1,11 +1,8 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
-import { getWallet, getProvider, deployFactoryContract } from "./utils";
+import { deployFactoryContract } from "./utils";
 import { ethers } from "ethers";
 
 export default async function (hre: HardhatRuntimeEnvironment) {
-  const wallet = getWallet();
-  const provider = getProvider();
-
   const factoryName = "GaslessPaymasterFactory";
   const deps = ["GaslessPaymaster"];
 
@@ -16,21 +13,4 @@ export default async function (hre: HardhatRuntimeEnvironment) {
     ethers.zeroPadBytes("0x", 20)
   );
   await tx.wait();
-  //   const contractArtifactName = "GaslessPaymasterFactory";
-  //   const constructorArguments = [];
-  //   const contract = await deployContract(
-  //     contractArtifactName,
-  //     constructorArguments
-  //   );
-
-  //   // Supplying paymaster with ETH
-  //   await (
-  //     await wallet.sendTransaction({
-  //       to: contract.target,
-  //       value: ethers.parseEther("0.005"),
-  //     })
-  //   ).wait();
-
-  //   let paymasterBalance = await provider.getBalance(contract.target.toString());
-  //   console.log(`Paymaster ETH balance is now ${paymasterBalance.toString()}`);
 }
