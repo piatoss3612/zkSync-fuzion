@@ -23,7 +23,7 @@ contract GaslessPaymaster is IPaymaster, Ownable {
         _;
     }
 
-    constructor(address _owner) Ownable(_owner) {}
+    constructor(address _owner) payable Ownable(_owner) {}
 
     function validateAndPayForPaymasterTransaction(bytes32, bytes32, Transaction calldata _transaction)
         external
