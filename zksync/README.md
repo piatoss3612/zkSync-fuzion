@@ -1,66 +1,52 @@
-## Foundry
+# Hardhat zkSync
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+## Deployment
 
-Foundry consists of:
+### Deploying the Gasless Paymaster
 
--   **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
--   **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
--   **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
--   **Chisel**: Fast, utilitarian, and verbose solidity REPL.
-
-## Documentation
-
-https://book.getfoundry.sh/
-
-## Usage
-
-### Build
-
-```shell
-$ forge build
+```bash
+$ yarn hardhat deploy-zksync --script deployGaslessPaymaster.ts
 ```
 
-### Test
+### Deploying the Gasless Paymaster Factory
 
-```shell
-$ forge test
+```bash
+$ yarn hardhat deploy-zksync --script deployGaslessPaymasterFactory.ts
+yarn run v1.22.22
+
+"GaslessPaymasterFactory" was successfully deployed:
+ - Contract address: 0x1cBa868B876cB00140a43895246559b2e5E129c9
+ - Contract source: contracts/GaslessPaymasterFactory.sol:GaslessPaymasterFactory
+ - Encoded constructor arguments: 0x
+
+Requesting contract verification...
+Your verification ID is: 21662
+Contract successfully verified on ZKsync block explorer!
+Done in 12.69s.
 ```
 
-### Format
+### Interacting with the Gasless Paymaster
 
-```shell
-$ forge fmt
+```bash
+$ yarn hardhat deploy-zksync --script interactWithGaslessPaymaster.ts
 ```
 
-### Gas Snapshots
+### Deploying the Fuzion Router
 
-```shell
-$ forge snapshot
-```
+```bash
+$ yarn hardhat deploy-zksync --script deployFuzionRouter.ts
+yarn run v1.22.22
 
-### Anvil
+Starting deployment process of "FuzionRouter"...
+Estimated deployment cost: 0.018844268833765838 ETH
 
-```shell
-$ anvil
-```
+"FuzionRouter" was successfully deployed:
+ - Contract address: 0x40C0222E7364F3f3ED57A941aAF874E5855be01d
+ - Contract source: contracts/FuzionRouter.sol:FuzionRouter
+ - Encoded constructor arguments: 0x000000000000000000000000965b0e63e00e7805569ee3b428cf96330dfc57ef
 
-### Deploy
-
-```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
-```
-
-### Cast
-
-```shell
-$ cast <subcommand>
-```
-
-### Help
-
-```shell
-$ forge --help
-$ anvil --help
-$ cast --help
+Requesting contract verification...
+Your verification ID is: 21663
+Contract successfully verified on ZKsync block explorer!
+Done in 15.45s.
 ```

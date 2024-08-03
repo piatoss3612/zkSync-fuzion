@@ -1,0 +1,32 @@
+specVersion: 1.0.0
+indexerHints:
+  prune: auto
+schema:
+  file: schema.graphql
+dataSources:
+  - kind: ethereum
+    name: fuzion_router
+    network: zksync-era-sepolia
+    source:
+      address: "0x40C0222E7364F3f3ED57A941aAF874E5855be01d"
+      abi: fuzion_router
+      startBlock: 3562036
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - OwnershipTransferred
+        - PaymasterCreated
+        - PaymasterFactorySet
+      abis:
+        - name: fuzion_router
+          file: fuzion_router/abis/fuzion_router.json
+      eventHandlers:
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: PaymasterCreated(indexed address,indexed address,indexed address,string)
+          handler: handlePaymasterCreated
+        - event: PaymasterFactorySet(indexed address)
+          handler: handlePaymasterFactorySet
+      file: fuzion_router/fuzion_router.wasm
