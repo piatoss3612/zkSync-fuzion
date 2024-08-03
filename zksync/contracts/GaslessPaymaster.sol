@@ -1,31 +1,31 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.24;
 
-import {IPaymaster, ExecutionResult, PAYMASTER_VALIDATION_SUCCESS_MAGIC} from "@matterlabs/zksync-contracts/l2/system-contracts/interfaces/IPaymaster.sol";
+import {
+    IPaymaster,
+    ExecutionResult,
+    PAYMASTER_VALIDATION_SUCCESS_MAGIC
+} from "@matterlabs/zksync-contracts/l2/system-contracts/interfaces/IPaymaster.sol";
 import {IPaymasterFlow} from "@matterlabs/zksync-contracts/l2/system-contracts/interfaces/IPaymasterFlow.sol";
-import {TransactionHelper, Transaction} from "@matterlabs/zksync-contracts/l2/system-contracts/libraries/TransactionHelper.sol";
+import {
+    TransactionHelper,
+    Transaction
+} from "@matterlabs/zksync-contracts/l2/system-contracts/libraries/TransactionHelper.sol";
 
 import "@matterlabs/zksync-contracts/l2/system-contracts/Constants.sol";
 
-import "@openzeppelin/contracts/access/Ownable.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
-/// @author Matter Labs
-/// @notice This contract does not include any validations other than using the paymaster general flow.
 contract GaslessPaymaster is IPaymaster, Ownable {
     modifier onlyBootloader() {
-        require(
-            msg.sender == BOOTLOADER_FORMAL_ADDRESS,
-            "Only bootloader can call this method"
-        );
+        require(msg.sender == BOOTLOADER_FORMAL_ADDRESS, "Only bootloader can call this method");
         // Continue execution if called from the bootloader.
         _;
     }
 
-    function validateAndPayForPaymasterTransaction(
-        bytes32,
-        bytes32,
-        Transaction calldata _transaction
-    )
+    constructor(address _owner) Ownable(_owner) {}
+
+    function validateAndPayForPaymasterTransaction(bytes32, bytes32, Transaction calldata _transaction)
         external
         payable
         onlyBootloader
@@ -33,31 +33,20 @@ contract GaslessPaymaster is IPaymaster, Ownable {
     {
         // By default we consider the transaction as accepted.
         magic = PAYMASTER_VALIDATION_SUCCESS_MAGIC;
-        require(
-            _transaction.paymasterInput.length >= 4,
-            "The standard paymaster input must be at least 4 bytes long"
-        );
+        require(_transaction.paymasterInput.length >= 4, "The standard paymaster input must be at least 4 bytes long");
 
-        bytes4 paymasterInputSelector = bytes4(
-            _transaction.paymasterInput[0:4]
-        );
-        if (paymasterInputSelector == IPaymasterFlow.general.selector) {
-            // Note, that while the minimal amount of ETH needed is tx.gasPrice * tx.gasLimit,
-            // neither paymaster nor account are allowed to access this context variable.
-            uint256 requiredETH = _transaction.gasLimit *
-                _transaction.maxFeePerGas;
-
-            // The bootloader never returns any data, so it can safely be ignored here.
-            (bool success, ) = payable(BOOTLOADER_FORMAL_ADDRESS).call{
-                value: requiredETH
-            }("");
-            require(
-                success,
-                "Failed to transfer tx fee to the Bootloader. Paymaster balance might not be enough."
-            );
-        } else {
+        bytes4 paymasterInputSelector = bytes4(_transaction.paymasterInput[0:4]);
+        if (paymasterInputSelector != IPaymasterFlow.general.selector) {
             revert("Unsupported paymaster flow in paymasterParams.");
         }
+
+        // Note, that while the minimal amount of ETH needed is tx.gasPrice * tx.gasLimit,
+        // neither paymaster nor account are allowed to access this context variable.
+        uint256 requiredETH = _transaction.gasLimit * _transaction.maxFeePerGas;
+
+        // The bootloader never returns any data, so it can safely be ignored here.
+        (bool success,) = payable(BOOTLOADER_FORMAL_ADDRESS).call{value: requiredETH}("");
+        require(success, "Failed to transfer tx fee to the Bootloader. Paymaster balance might not be enough.");
     }
 
     function postTransaction(
@@ -67,14 +56,12 @@ contract GaslessPaymaster is IPaymaster, Ownable {
         bytes32,
         ExecutionResult _txResult,
         uint256 _maxRefundedGas
-    ) external payable override onlyBootloader {
-        // Refunds are not supported yet.
-    }
+    ) external payable override onlyBootloader {}
 
     function withdraw(address payable _to) external onlyOwner {
         // send paymaster funds to the owner
         uint256 balance = address(this).balance;
-        (bool success, ) = _to.call{value: balance}("");
+        (bool success,) = _to.call{value: balance}("");
         require(success, "Failed to withdraw funds from paymaster.");
     }
 

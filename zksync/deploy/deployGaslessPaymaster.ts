@@ -4,15 +4,16 @@ import { ethers } from "ethers";
 // An example of a basic deploy script
 // It will deploy a CrowdfundingCampaign contract to selected network
 // `parseEther` converts ether to wei, and `.toString()` ensures serialization compatibility.
-export default async function() {
+export default async function () {
+  const wallet = getWallet();
+  const provider = getProvider();
+
   const contractArtifactName = "GaslessPaymaster";
-  const constructorArguments = [];
+  const constructorArguments = [wallet.address];
   const contract = await deployContract(
     contractArtifactName,
     constructorArguments
   );
-  const wallet = getWallet();
-  const provider = getProvider();
 
   // Supplying paymaster with ETH
   await (
