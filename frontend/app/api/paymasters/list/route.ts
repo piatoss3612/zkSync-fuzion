@@ -2,7 +2,7 @@ import { authOptions } from "@/libs/auth";
 import { getServerSession } from "next-auth";
 import { request, gql } from "graphql-request";
 import { NextRequest, NextResponse } from "next/server";
-import { PaymasterCreated } from "@/types";
+import { PaymasterCreated, PaymasterCreateds } from "@/types";
 
 const SUBGRAPH_URL =
   "https://api.studio.thegraph.com/query/68882/fuzion/version/latest";
@@ -34,6 +34,7 @@ const GET = async (req: NextRequest) => {
     // Get the url parameter
     const url = new URL(req.url);
     const page = url.searchParams.get("page") || "1";
+    const limit = url.searchParams.get("limit") || "10";
 
     // Prepare the query
     let pageNum = parseInt(page) - 1;
@@ -41,14 +42,19 @@ const GET = async (req: NextRequest) => {
       pageNum = 0;
     }
 
+    let limitNum = parseInt(limit);
+    if (limitNum < 1) {
+      limitNum = 10;
+    }
+
     const query = `
     {
       paymasterCreateds(
-        first: 10
+        first: ${limitNum}
         where: {owner: "${userAddress}"}
         orderBy: blockTimestamp
         orderDirection: desc
-        skip: ${pageNum * 10}
+        skip: ${pageNum * limitNum}
       ) {
         id
         name
@@ -60,7 +66,7 @@ const GET = async (req: NextRequest) => {
     }
   `;
 
-    const response = await request<PaymasterCreated[]>(SUBGRAPH_URL, query);
+    const response = await request<PaymasterCreateds>(SUBGRAPH_URL, query);
 
     return NextResponse.json(response, { status: 200 });
   } catch (error) {

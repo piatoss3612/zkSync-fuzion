@@ -1,6 +1,5 @@
 import {
   Container,
-  Stack,
   Button,
   InputGroup,
   InputLeftElement,
@@ -8,46 +7,113 @@ import {
   Icon,
   HStack,
   VStack,
+  useToast,
+  Center,
+  Text,
+  Box,
 } from "@chakra-ui/react";
 import { useRouter } from "next/navigation";
 import { Search2Icon } from "@chakra-ui/icons";
 import { BsPlusLg } from "react-icons/bs";
 import PaymasterList from "./list";
-import { PaymasterCreated } from "@/types";
+import { PaymasterCreated, PaymasterCreateds } from "@/types";
+import { useAuth } from "@/hooks";
+import { useEffect, useRef, useState } from "react";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import axios from "axios";
 
 const Paymasters = () => {
   const router = useRouter();
+  const toast = useToast();
+  const { address } = useAuth();
+  const loadMoreRef = useRef(null);
+  const [paymasters, setPaymasters] = useState<PaymasterCreated[]>([]);
 
-  const paymasters: PaymasterCreated[] = [
-    {
-      id: "1",
-      name: "Paymaster 1",
-      owner: "0x1234567890",
-      paymaster: "0x1234567890",
-      paymasterFactory: "0x1234567890",
-      blockTimestamp: 1234567890,
-    },
-    {
-      id: "2",
-      name: "Paymaster 2",
-      owner: "0x1234567890",
-      paymaster: "0x1234567890",
-      paymasterFactory: "0x1234567890",
-      blockTimestamp: 1234567890,
-    },
-    {
-      id: "3",
-      name: "Paymaster 3",
-      owner: "0x1234567890",
-      paymaster: "0x1234567890",
-      paymasterFactory: "0x1234567890",
-      blockTimestamp: 1234567890,
-    },
-  ];
+  const queryPaymasters = async ({
+    pageParam,
+  }: {
+    pageParam: any;
+  }): Promise<PaymasterCreateds> => {
+    const response = await axios.get<PaymasterCreateds>("api/paymasters/list", {
+      params: {
+        page: pageParam,
+      },
+    });
+
+    if (response.status !== 200) {
+      const message = (response.data as any).message || "An error occurred";
+      throw new Error(message);
+    }
+
+    return response.data;
+  };
+
+  const { data, fetchNextPage, hasNextPage, isLoading, isError, error } =
+    useInfiniteQuery<PaymasterCreateds, Error>({
+      queryKey: ["paymasters", address],
+      queryFn: queryPaymasters,
+      initialPageParam: 1,
+      getNextPageParam: (lastPage, allPages) => {
+        if (lastPage.paymasterCreateds.length === 0) {
+          return undefined;
+        }
+
+        return allPages.length + 1;
+      },
+    });
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasNextPage) {
+          fetchNextPage();
+        }
+      },
+      {
+        threshold: 1,
+      }
+    );
+
+    if (loadMoreRef.current) {
+      observer.observe(loadMoreRef.current);
+    }
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (data) {
+      // remove duplicates
+      const newPaymasters = data.pages.reduce((acc, page) => {
+        const paymasters = page.paymasterCreateds.filter(
+          (paymaster) => !acc.some((p) => p.id === paymaster.id)
+        );
+        return [...acc, ...paymasters];
+      }, paymasters);
+
+      setPaymasters(newPaymasters);
+    }
+  }, [data]);
+
+  useEffect(() => {
+    if (isError) {
+      const message =
+        error instanceof Error ? error.message : "An error occurred";
+      toast({
+        title: "Error",
+        description: message,
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+  }, [isError]);
 
   return (
-    <Container maxW={"6xl"} px="1.6rem">
-      <VStack spacing={8} py={12}>
+    <Container maxW={"6xl"} px="1.6rem" display="flex" flexDirection="column">
+      <VStack spacing={8} py={12} flex="1">
         <HStack
           justifyContent={{ base: "center", md: "space-between" }}
           w="full"
@@ -69,6 +135,9 @@ const Paymasters = () => {
           </Button>
         </HStack>
         <PaymasterList paymasters={paymasters} />
+        <Center ref={loadMoreRef}>
+          {hasNextPage && <Text>Load More</Text>}
+        </Center>
       </VStack>
     </Container>
   );

@@ -12,4 +12,8 @@ interface PaymasterCreated {
   blockTimestamp: number;
 }
 
-export { NavItem, PaymasterCreated };
+interface PaymasterCreateds {
+  paymasterCreateds: PaymasterCreated[];
+}
+
+export { NavItem, PaymasterCreated, PaymasterCreateds };
