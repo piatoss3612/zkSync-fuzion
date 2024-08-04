@@ -134,15 +134,15 @@ const PaymasterCard = ({ paymaster }: PaymasterCardProps) => {
           ) : null
         }
       />
-      <GridItem>
+      <GridItem w="full" display="flex" justifyContent="center">
         <Card
           maxW="sm"
+          w="full"
           borderWidth="1px"
           borderRadius="lg"
           overflow="hidden"
           boxShadow="sm"
           _hover={{ boxShadow: "xl" }}
-          justifySelf={["center", "center", "auto"]}
         >
           <CardHeader bg="blue.500" color="white" py={3}>
             <Heading size="md" textAlign="center">
@@ -177,7 +177,7 @@ const PaymasterCard = ({ paymaster }: PaymasterCardProps) => {
               </Text>
               <ButtonGroup justifyContent="center">
                 <Button colorScheme="blue" onClick={onToggle}>
-                  Deposit
+                  {isFooterOpen ? "Close" : "Deposit"}
                 </Button>
                 <Button colorScheme="blue" onClick={handleWithdraw}>
                   Withdraw
