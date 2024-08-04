@@ -12,6 +12,7 @@ import {
   Text,
   Box,
   Heading,
+  Spinner,
 } from "@chakra-ui/react";
 import { useRouter } from "next/navigation";
 import { Search2Icon } from "@chakra-ui/icons";
@@ -141,7 +142,7 @@ const Paymasters = () => {
             New Paymaster
           </Button>
         </HStack>
-        <PaymasterList paymasters={paymasters} />
+        <PaymasterList paymasters={paymasters} isLoading={isLoading} />
         <Center ref={loadMoreRef}>
           {hasNextPage && (
             <Text

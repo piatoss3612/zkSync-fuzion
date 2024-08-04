@@ -52,6 +52,7 @@ const PaymasterCreateForm = () => {
     onClose();
     if (isSuccess) {
       router.push("/paymasters");
+      router.refresh();
     }
   }, [isSuccess]);
 

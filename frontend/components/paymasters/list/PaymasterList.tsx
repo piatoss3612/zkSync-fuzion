@@ -1,13 +1,14 @@
-import { Box, SimpleGrid, Center, Text } from "@chakra-ui/react";
+import { Box, SimpleGrid, Center, Text, Spinner } from "@chakra-ui/react";
 import React from "react";
 import PaymasterCard from "./PaymasterCard";
 import { PaymasterCreated } from "@/types";
 
 interface PaymasterListProps {
   paymasters: PaymasterCreated[];
+  isLoading: boolean;
 }
 
-const PaymasterList = ({ paymasters }: PaymasterListProps) => {
+const PaymasterList = ({ paymasters, isLoading }: PaymasterListProps) => {
   if (paymasters.length === 0) {
     return (
       <Box
@@ -17,20 +18,30 @@ const PaymasterList = ({ paymasters }: PaymasterListProps) => {
         justifyContent="center"
         width="100%"
       >
-        <Text
-          textAlign="center"
-          fontSize="lg"
-          color="gray.500"
-          fontWeight="semibold"
-        >
-          No paymasters found
-        </Text>
+        {isLoading ? (
+          <Spinner
+            thickness="4px"
+            speed="0.65s"
+            emptyColor="gray.200"
+            color="blue.500"
+            size="xl"
+          />
+        ) : (
+          <Text
+            textAlign="center"
+            fontSize="lg"
+            color="gray.500"
+            fontWeight="semibold"
+          >
+            No paymasters found
+          </Text>
+        )}
       </Box>
     );
   }
 
   return (
-    <SimpleGrid columns={[1, 2, 3]} gap={4} w="full">
+    <SimpleGrid columns={[1, 1, 2, 3, 3]} gap={4} w="full">
       {paymasters.map((paymaster) => (
         <PaymasterCard key={paymaster.id} paymaster={paymaster} />
       ))}
