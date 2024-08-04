@@ -1,3 +1,4 @@
+import { PaymasterCreated } from "@/types";
 import {
   Button,
   Card,
@@ -9,14 +10,20 @@ import {
 } from "@chakra-ui/react";
 import React from "react";
 
-const PaymasterCard = () => {
+interface PaymasterCardProps {
+  paymaster: PaymasterCreated;
+}
+
+const PaymasterCard = ({ paymaster }: PaymasterCardProps) => {
+  const localDate = new Date(paymaster.blockTimestamp * 1000).toLocaleString();
   return (
     <Card align="center">
       <CardHeader>
-        <Heading size="md"> Customer Paymaster</Heading>
+        <Heading size="md">{paymaster.name}</Heading>
       </CardHeader>
       <CardBody>
-        <Text>This is a paymaster card</Text>
+        <Text>{paymaster.paymaster}</Text>
+        <Text>{localDate}</Text>
       </CardBody>
       <CardFooter>
         <Button colorScheme="blue">Details</Button>
