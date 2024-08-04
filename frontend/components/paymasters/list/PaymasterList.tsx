@@ -41,7 +41,12 @@ const PaymasterList = ({ paymasters, isLoading }: PaymasterListProps) => {
   }
 
   return (
-    <SimpleGrid columns={[1, 1, 2, 3, 3]} gap={4} w="full">
+    <SimpleGrid
+      columns={[1, 1, 2, 2, 3]}
+      gap={6}
+      w="full"
+      justifyItems="center"
+    >
       {paymasters.map((paymaster) => (
         <PaymasterCard key={paymaster.id} paymaster={paymaster} />
       ))}

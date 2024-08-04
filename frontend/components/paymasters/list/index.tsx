@@ -131,7 +131,8 @@ const Paymasters = () => {
             <InputLeftElement pointerEvents="none">
               <Search2Icon color="gray.500" />
             </InputLeftElement>
-            <Input type="text" placeholder="Search" />
+            {/* TODO: Implement search functionality */}
+            <Input type="text" placeholder="Search" isDisabled={true} />
           </InputGroup>
           <Button
             leftIcon={<Icon as={BsPlusLg} />}
@@ -144,16 +145,7 @@ const Paymasters = () => {
         </HStack>
         <PaymasterList paymasters={paymasters} isLoading={isLoading} />
         <Center ref={loadMoreRef}>
-          {hasNextPage && (
-            <Text
-              textAlign="center"
-              fontSize="lg"
-              color="gray.500"
-              fontWeight="semibold"
-            >
-              Load More
-            </Text>
-          )}
+          {data?.pages.length && isLoading && <Spinner size="lg" />}
         </Center>
       </VStack>
     </Container>
