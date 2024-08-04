@@ -24,7 +24,7 @@ import {
   Link,
 } from "@chakra-ui/react";
 import { useFormik } from "formik";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { encodeFunctionData, formatUnits, parseEther } from "viem";
 import {
   useBalance,
@@ -40,7 +40,7 @@ const PaymasterCard = ({ paymaster }: PaymasterCardProps) => {
   const toast = useToast();
   const { address } = useAuth();
   const { isOpen: isResultModalOpen, onOpen, onClose } = useDisclosure();
-  const { isOpen: isFooterOpen, onToggle } = useDisclosure();
+  const [isFooterOpen, setIsFooterOpen] = useState(false);
   const localDate = new Date(paymaster.blockTimestamp * 1000).toLocaleString();
 
   const { data } = useBalance({
@@ -80,7 +80,7 @@ const PaymasterCard = ({ paymaster }: PaymasterCardProps) => {
       });
 
       values.deposit = 0;
-      onToggle();
+      setIsFooterOpen(false);
     },
   });
 
@@ -134,7 +134,12 @@ const PaymasterCard = ({ paymaster }: PaymasterCardProps) => {
           ) : null
         }
       />
-      <GridItem w="full" display="flex" justifyContent="center">
+      <GridItem
+        w="full"
+        display="flex"
+        flexDirection="column"
+        alignItems="center"
+      >
         <Card
           maxW="sm"
           w="full"
@@ -176,7 +181,10 @@ const PaymasterCard = ({ paymaster }: PaymasterCardProps) => {
                 {localDate}
               </Text>
               <ButtonGroup justifyContent="center">
-                <Button colorScheme="blue" onClick={onToggle}>
+                <Button
+                  colorScheme="blue"
+                  onClick={() => setIsFooterOpen(!isFooterOpen)}
+                >
                   {isFooterOpen ? "Close" : "Deposit"}
                 </Button>
                 <Button colorScheme="blue" onClick={handleWithdraw}>
