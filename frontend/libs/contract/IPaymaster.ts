@@ -2,6 +2,71 @@ const IPAYMASTER_ABI = [
   {
     inputs: [
       {
+        internalType: "address",
+        name: "_owner",
+        type: "address",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "constructor",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "owner",
+        type: "address",
+      },
+    ],
+    name: "OwnableInvalidOwner",
+    type: "error",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "account",
+        type: "address",
+      },
+    ],
+    name: "OwnableUnauthorizedAccount",
+    type: "error",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "previousOwner",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "newOwner",
+        type: "address",
+      },
+    ],
+    name: "OwnershipTransferred",
+    type: "event",
+  },
+  {
+    inputs: [],
+    name: "owner",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "bytes",
         name: "_context",
         type: "bytes",
@@ -95,12 +160,12 @@ const IPAYMASTER_ABI = [
       },
       {
         internalType: "bytes32",
-        name: "_txHash",
+        name: "",
         type: "bytes32",
       },
       {
         internalType: "bytes32",
-        name: "_suggestedSignedHash",
+        name: "",
         type: "bytes32",
       },
       {
@@ -120,15 +185,35 @@ const IPAYMASTER_ABI = [
     type: "function",
   },
   {
+    inputs: [],
+    name: "renounceOwnership",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "newOwner",
+        type: "address",
+      },
+    ],
+    name: "transferOwnership",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
     inputs: [
       {
         internalType: "bytes32",
-        name: "_txHash",
+        name: "",
         type: "bytes32",
       },
       {
         internalType: "bytes32",
-        name: "_suggestedSignedHash",
+        name: "",
         type: "bytes32",
       },
       {
@@ -234,6 +319,23 @@ const IPAYMASTER_ABI = [
     ],
     stateMutability: "payable",
     type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address payable",
+        name: "_to",
+        type: "address",
+      },
+    ],
+    name: "withdraw",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    stateMutability: "payable",
+    type: "receive",
   },
 ] as const;
 

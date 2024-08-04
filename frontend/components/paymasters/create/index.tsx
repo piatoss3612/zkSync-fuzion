@@ -175,7 +175,7 @@ const PaymasterCreateForm = () => {
                   />
                 </FormControl>
                 <FormControl>
-                  <FormLabel htmlFor="owner">Deposit</FormLabel>
+                  <FormLabel htmlFor="deposit">Deposit</FormLabel>
                   <Input
                     id="deposit"
                     name="deposit"
