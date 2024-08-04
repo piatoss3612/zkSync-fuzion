@@ -1,6 +1,6 @@
 "use client";
 
-import Paymasters from "@/components/paymasters";
+import Paymasters from "@/components/paymasters/list";
 
 const Page = () => {
   return <Paymasters />;

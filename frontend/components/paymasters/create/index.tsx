@@ -1,3 +1,4 @@
+import SignInRequired from "@/components/auth/SignInRequired";
 import { useAuth } from "@/hooks";
 import {
   Box,
@@ -24,15 +25,7 @@ const PaymasterCreateForm = () => {
   });
 
   if (!isSignedIn) {
-    return (
-      <Box display="flex" alignItems="center" justifyContent="center" flex="1">
-        <Container px="1.6rem" my={4}>
-          <Box bg="white" p={6} rounded="md" textAlign="center">
-            <Heading size="md">Please sign in to create a paymaster</Heading>
-          </Box>
-        </Container>
-      </Box>
-    );
+    return <SignInRequired message="Please sign in to create a paymaster" />;
   }
 
   return (
