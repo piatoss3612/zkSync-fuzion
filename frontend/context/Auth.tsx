@@ -123,9 +123,8 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       return;
     }
 
-    // Switch to zkSync Sepolia Testnet if the chain is not zkSync or zkSync Sepolia Testnet
+    // Switch to ZKsync Sepolia Testnet if the chain is not ZKsync or ZKsync Sepolia Testnet
     if (chainId != zkSync.id && chainId != zkSyncSepoliaTestnet.id) {
-      console.log("Switching chain to zkSync Sepolia Testnet...");
       switchChain({
         chainId: zkSyncSepoliaTestnet.id,
       });

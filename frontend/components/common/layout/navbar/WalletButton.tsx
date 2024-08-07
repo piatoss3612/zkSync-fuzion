@@ -123,7 +123,7 @@ const WalletButton = () => {
                           {account.displayName}
                         </MenuButton>
                         <MenuList color={"black"}>
-                          <MenuGroup title="Account">
+                          <MenuGroup title="Menu">
                             <MenuItem onClick={openAccountModal}>
                               Account
                             </MenuItem>

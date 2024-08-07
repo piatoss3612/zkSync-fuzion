@@ -47,7 +47,7 @@ const GET = async (req: NextRequest) => {
       limitNum = 10;
     }
 
-    const query = `
+    const query = gql`
     {
       paymasterCreateds(
         first: ${limitNum}

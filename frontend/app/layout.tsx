@@ -2,14 +2,14 @@ import type { Metadata } from "next";
 import { Baloo_2 } from "next/font/google";
 import Providers from "./providers";
 import "@rainbow-me/rainbowkit/styles.css";
-import Layout from "@/components/layout";
+import Layout from "@/components/common/layout";
 
 const baloo2 = Baloo_2({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Fuzion",
   description:
-    "Deploy and Integrate your zkSync paymaster in an easy way with Fuzion",
+    "Deploy and Integrate your ZKsync paymaster in an easy way with Fuzion",
 };
 
 export default function RootLayout({
