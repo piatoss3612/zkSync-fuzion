@@ -7,69 +7,66 @@ import {IERC165} from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 
 enum ModuleType {
     Validator,
-    Payment,
+    Payport,
     Hook
 }
 
 struct ModuleMetadata {
-    ModuleType moduleType;
-    string name;
-    string version;
-    string author;
-    string installDataSignature;
+    ModuleType moduleType; // Type of the module.
+    string name; // Name of the module.
+    string version; // Version of the module.
+    string author; // Author of the module.
+    string installDataSignature; // Signature of the install data. (I think it would be better to use (type, name) array instead of just a string)
 }
 
 interface IModule is IERC165 {
     function onInstall(bytes calldata data) external;
-    function onUpdate(bytes calldata data) external;
     function onUninstall(bytes calldata data) external;
     function metadata() external view returns (ModuleMetadata memory);
+    function isModuleType(ModuleType _moduleType) external view returns (bool);
+    function isInstalled(address _account) external view returns (bool);
 }
 
 interface IValidator is IModule {
     function validateTransaction(bytes32 _txHash, bytes32 _suggestedSignedHash, Transaction calldata _transaction)
         external
         view
-        returns (bytes4 magic);
+        returns (bool isValid);
 }
 
-struct PaymentData {
-    bytes4 paymasterInputSelector;
-    address asset;
-    uint256 amount;
+struct PreparePaymentData {
+    bytes4 paymasterInputSelector; // Selector of the IPaymasterFlow method (for double check just in case).
+    address from; // Address to transfer from.
+    address token; // Not zero if token transfer is required.
+    uint96 requiredETH; // Required amount of ETH to transfer to the Bootloader. (fee might not greater than 1 ETH, so uint96 is enough)
+    uint256 requiredToken; // Required amount of token.
+    bytes extraData; // Reserved for future use.
 }
 
-address constant ETHER_ADDRESS = 0x000000000000000000000000000000000000800A;
+struct PrepareRefundData {
+    address to; // Address to transfer refund to.
+    uint96 feeToCharge; // Fee to charge from the refund (to cover the gas cost paymaster spent for additional checks).
+    uint256 amount; // Amount of token to refund.
+}
 
 interface IPayment is IModule {
-    function prepareForPayment(Transaction calldata _transaction)
+    function preparePayment(Transaction calldata _transaction)
         external
-        returns (PaymentData memory paymentData, bytes memory context);
-    function prepareForRefund(
-        bytes calldata _context,
+        returns (PreparePaymentData memory paymentData);
+    function prepareRefund(
         Transaction calldata _transaction,
+        PreparePaymentData calldata _paymentData,
         bytes32 _txHash,
         bytes32 _suggestedSignedHash,
         ExecutionResult _txResult,
         uint256 _maxRefundedGas
-    ) external returns (PaymentData memory paymentData);
+    ) external returns (PrepareRefundData memory refundData);
 }
 
-interface IValidationHook is IModule {
-    function beforeValidateTransaction(bytes32 _txHash, bytes32 _suggestedSignedHash, Transaction calldata _transaction)
+interface IHook is IModule {
+    function preCheck(address msgSender, uint256 msgValue, bytes calldata msgData)
         external
-        returns (uint256);
-}
+        returns (bytes memory hookContext);
 
-interface IPaymentHook is IModule {
-    function beforePrepareForPayment(Transaction calldata _transaction) external returns (uint256);
-    function afterPayment(Transaction calldata _transaction, PaymentData calldata _paymentData) external;
-    function beforePrepareForRefund(
-        bytes calldata _context,
-        Transaction calldata _transaction,
-        bytes32 _txHash,
-        bytes32 _suggestedSignedHash,
-        ExecutionResult _txResult,
-        uint256 _maxRefundedGas
-    ) external returns (uint256);
+    function postCheck(bytes calldata hookContext) external;
 }
