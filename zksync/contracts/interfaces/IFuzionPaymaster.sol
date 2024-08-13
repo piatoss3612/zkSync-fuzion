@@ -6,6 +6,8 @@ import {IERC165} from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 import {IModule, ModuleType} from "./IModule.sol";
 
 interface IFuzionPaymaster is IPaymaster, IERC165 {
+    error ValidationFailed(string reason);
+
     event ModuleInstalled(ModuleType moduleType, address module);
     event ModuleUninstalled(ModuleType moduleType, address module);
     event DefaultModuleSet(ModuleType moduleType, address module);
