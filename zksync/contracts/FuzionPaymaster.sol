@@ -24,7 +24,11 @@ import {IERC165} from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 contract FuzionPaymaster is ModuleManager, Ownable {
-    constructor(address _owner) payable Ownable(_owner) {}
+    address private _feeTo;
+
+    constructor(address _owner, address _feeToAddress) payable Ownable(_owner) {
+        _feeTo = _feeToAddress;
+    }
 
     function validateAndPayForPaymasterTransaction(bytes32, bytes32, Transaction calldata _transaction)
         external
@@ -80,8 +84,15 @@ contract FuzionPaymaster is ModuleManager, Ownable {
         _setDefaultModule(moduleType, _module);
     }
 
-    function uninstallModule(ModuleType moduleType, address _module, bool _forceDelete) external onlyOwner {
-        _uninstallModule(moduleType, _module, _forceDelete);
+    function setDefaultModules(address[] calldata _validators, address _payport, address _hook) external onlyOwner {
+        _setDefaultModules(_validators, _payport, _hook);
+    }
+
+    function uninstallModule(ModuleType moduleType, address _module, bool _forceDelete, bytes calldata _deletionData)
+        external
+        onlyOwner
+    {
+        _uninstallModule(moduleType, _module, _forceDelete, _deletionData);
     }
 
     function supportsInterface(bytes4 interfaceId) public pure returns (bool) {
@@ -95,5 +106,14 @@ contract FuzionPaymaster is ModuleManager, Ownable {
 
     function withdraw(address _token, address payable _to, uint256 _amount) external onlyOwner {
         _withdraw(_token, _to, _amount);
+    }
+
+    function setFeeTo(address _feeToAddress) external onlyOwner {
+        _feeTo = _feeToAddress;
+        emit FeeToSet(_feeToAddress);
+    }
+
+    function feeTo() external view returns (address) {
+        return _feeTo;
     }
 }

@@ -9,7 +9,7 @@ contract FuzionPaymasterFactory {
 
     // TODO: use create2 to deploy paymaster
     function createPaymaster(address _owner, bytes calldata) external payable returns (address paymaster) {
-        paymaster = address(new FuzionPaymaster{value: msg.value}(_owner));
+        paymaster = address(new FuzionPaymaster{value: msg.value}(_owner, msg.sender));
 
         emit PaymasterCreated(paymaster, _owner);
     }

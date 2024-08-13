@@ -46,7 +46,7 @@ struct PreparePaymentData {
 struct PrepareRefundData {
     address to; // Address to transfer refund to.
     uint96 feeToCharge; // Fee to charge from the refund (to cover the gas cost paymaster spent for additional checks).
-    uint256 amount; // Amount of token to refund.
+    uint256 amount; // Amount of token to refund excluding fee.
 }
 
 interface IPayment is IModule {
