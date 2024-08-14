@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { zkSync, zkSyncSepoliaTestnet } from "viem/zksync";
 import { WagmiProvider } from "wagmi";
 import { SessionProvider } from "next-auth/react";
-import { AuthProvider } from "@/context";
+import { AuthProvider, ModalProvider } from "@/context";
 
 const config = getDefaultConfig({
   appName: "Fuzion",
@@ -34,7 +34,9 @@ const Providers = ({ children }: { children: React.ReactNode }) => {
               coolMode
               initialChain={zkSyncSepoliaTestnet}
             >
-              <AuthProvider>{mounted && children}</AuthProvider>
+              <ModalProvider>
+                <AuthProvider>{mounted && children}</AuthProvider>
+              </ModalProvider>
             </RainbowKitProvider>
           </SessionProvider>
         </QueryClientProvider>

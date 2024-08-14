@@ -2,44 +2,50 @@
 pragma solidity ^0.8.24;
 
 import {IFuzionRouter} from "./interfaces/IFuzionRouter.sol";
-import {IPaymasterFactory, IPaymaster} from "./interfaces/IPaymasterFactory.sol";
+import {IFuzionPaymaster} from "./interfaces/IFuzionPaymaster.sol";
+import {IModule, ModuleType, ModuleMetadata} from "./interfaces/IModule.sol";
+import {FuzionPaymasterFactory} from "./FuzionPaymasterFactory.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 contract FuzionRouter is IFuzionRouter, Ownable {
-    mapping(IPaymasterFactory => bool) private _paymasterFactories;
+    FuzionPaymasterFactory private immutable _paymasterFactory;
 
-    constructor(address _owner) payable Ownable(_owner) {}
+    mapping(address module => bool isModuleRegistered) private _modules;
 
-    function paymasterFactoryAvailable(IPaymasterFactory _paymasterFactory) external view override returns (bool) {
-        return _paymasterFactoryAvailable(_paymasterFactory);
+    constructor(address _paymasterFactoryAddress, address _owner) Ownable(_owner) {
+        _paymasterFactory = FuzionPaymasterFactory(_paymasterFactoryAddress);
     }
 
-    function _paymasterFactoryAvailable(IPaymasterFactory _paymasterFactory) internal view returns (bool) {
-        return _paymasterFactories[_paymasterFactory];
-    }
-
-    function setPaymasterFactory(IPaymasterFactory _paymasterFactory) external override onlyOwner {
-        if (address(_paymasterFactory) == address(0)) {
-            revert FuzionRouter__ZeroAddress();
-        }
-
-        _paymasterFactories[_paymasterFactory] = true;
-
-        emit PaymasterFactorySet(_paymasterFactory);
+    function factory() external view override returns (address) {
+        return address(_paymasterFactory);
     }
 
     function createPaymaster(
-        IPaymasterFactory _paymasterFactory,
+        bytes32 _salt,
         address _owner,
+        address _feeTo,
         string calldata _alias,
         bytes calldata _initData
     ) external payable override {
-        if (!_paymasterFactoryAvailable(_paymasterFactory)) {
-            revert FuzionRouter__PaymasterFactoryNotAvailable();
+        address paymaster = _paymasterFactory.getPaymasterAddress(_salt, _owner, _feeTo);
+        if (paymaster != _paymasterFactory.createPaymaster{value: msg.value}(_salt, _owner, _feeTo)) {
+            revert FuzionRouter__NotExpectedPaymaster();
         }
 
-        IPaymaster paymaster = _paymasterFactory.createPaymaster{value: msg.value}(_owner, _initData);
+        emit PaymasterCreated(paymaster, _owner, _alias);
 
-        emit PaymasterCreated(_paymasterFactory, address(paymaster), _owner, _alias);
+        IFuzionPaymaster(paymaster).initialize(_initData);
+    }
+
+    function registerModule(address _module) external override {
+        if (_modules[_module]) {
+            revert FuzionRouter__ModuleAlreadyRegistered();
+        }
+
+        ModuleMetadata memory metadata = IModule(_module).metadata();
+
+        _modules[_module] = true;
+
+        emit ModuleRegistered(address(_module), metadata.moduleType, metadata.name);
     }
 }

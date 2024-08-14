@@ -1,23 +1,24 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import {IPaymasterFactory} from "./IPaymasterFactory.sol";
+import {IModule, ModuleType} from "./IModule.sol";
 
 interface IFuzionRouter {
     error FuzionRouter__ZeroAddress();
     error FuzionRouter__PaymasterFactoryNotAvailable();
+    error FuzionRouter__ModuleAlreadyRegistered();
+    error FuzionRouter__NotExpectedPaymaster();
 
-    event PaymasterFactorySet(IPaymasterFactory indexed paymasterFactory);
-    event PaymasterCreated(
-        IPaymasterFactory indexed paymasterFactory, address indexed paymaster, address indexed owner, string name
-    );
+    event PaymasterCreated(address indexed paymaster, address indexed owner, string name);
+    event ModuleRegistered(address indexed module, ModuleType moduleType, string name);
 
-    function paymasterFactoryAvailable(IPaymasterFactory _paymasterFactory) external view returns (bool);
-    function setPaymasterFactory(IPaymasterFactory _paymasterFactory) external;
+    function factory() external view returns (address);
     function createPaymaster(
-        IPaymasterFactory _paymasterFactory,
+        bytes32 _salt,
         address _owner,
+        address _feeTo,
         string calldata _alias,
         bytes calldata _initData
     ) external payable;
+    function registerModule(address _module) external;
 }
