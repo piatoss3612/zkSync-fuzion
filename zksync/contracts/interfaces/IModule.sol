@@ -27,6 +27,13 @@ interface IModule is IERC165 {
     function isInstalled(address _account) external view returns (bool);
 }
 
+struct ModuleInitData {
+    ModuleType moduleType;
+    bool isDefault;
+    address module;
+    bytes initData;
+}
+
 interface IValidator is IModule {
     function validateTransaction(bytes32 _txHash, bytes32 _suggestedSignedHash, Transaction calldata _transaction)
         external

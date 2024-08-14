@@ -2,10 +2,11 @@
 pragma solidity ^0.8.24;
 
 import {IFuzionPaymaster} from "../interfaces/IFuzionPaymaster.sol";
-import {IModule, ModuleType} from "../interfaces/IModule.sol";
+import {IModule, ModuleType, ModuleInitData} from "../interfaces/IModule.sol";
 import {PaymasterBase} from "./PaymasterBase.sol";
+import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 
-abstract contract ModuleManager is IFuzionPaymaster, PaymasterBase {
+abstract contract ModuleManager is IFuzionPaymaster, PaymasterBase, Initializable {
     /*//////////////////////////////////////////////////////////////
                                  ERRORS
     //////////////////////////////////////////////////////////////*/
@@ -28,10 +29,24 @@ abstract contract ModuleManager is IFuzionPaymaster, PaymasterBase {
     address private _defaultPayport;
     address private _defaultHook;
 
+    function initialize(bytes calldata _initData) external override initializer {
+        // Initialize the default modules
+        ModuleInitData[] memory modules = abi.decode(_initData, (ModuleInitData[]));
+        for (uint256 i = 0; i < modules.length; i++) {
+            ModuleInitData memory module = modules[i];
+
+            _installModule(module.module, module.initData);
+
+            if (module.isDefault) {
+                _setDefaultModuleWithoutValidation(module.moduleType, module.module);
+            }
+        }
+    }
+
     /*//////////////////////////////////////////////////////////////
                            INTERNAL FUNCTIONS
     //////////////////////////////////////////////////////////////*/
-    function _installModule(ModuleType moduleType, address _module, bytes calldata _initData) internal {
+    function _installModule(ModuleType moduleType, address _module, bytes memory _initData) internal {
         // Validate the module
         _validateOnModuleInstall(moduleType, _module);
 
@@ -159,7 +174,7 @@ abstract contract ModuleManager is IFuzionPaymaster, PaymasterBase {
         }
     }
 
-    function _installModule(address _module, bytes calldata _initData) private {
+    function _installModule(address _module, bytes memory _initData) private {
         _installedModules[_module] = true;
         IModule(_module).onInstall(_initData);
     }

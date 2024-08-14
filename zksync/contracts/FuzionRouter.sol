@@ -1,11 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import {IPaymaster} from "@matterlabs/zksync-contracts/l2/system-contracts/interfaces/IPaymaster.sol";
 import {IFuzionRouter} from "./interfaces/IFuzionRouter.sol";
+import {IFuzionPaymaster} from "./interfaces/IFuzionPaymaster.sol";
 import {IModule, ModuleType, ModuleMetadata} from "./interfaces/IModule.sol";
 import {FuzionPaymasterFactory} from "./FuzionPaymasterFactory.sol";
-import {FuzionPaymaster} from "./FuzionPaymaster.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 contract FuzionRouter is IFuzionRouter, Ownable {
@@ -22,16 +21,24 @@ contract FuzionRouter is IFuzionRouter, Ownable {
         return address(_paymasterFactory);
     }
 
-    function createPaymaster(address _owner, string calldata _alias, bytes calldata _initData)
-        external
-        payable
-        override
-    {
-        address paymaster = _paymasterFactory.createPaymaster{value: msg.value}(_owner, _initData);
+    function createPaymaster(
+        bytes32 _salt,
+        address _owner,
+        address _feeTo,
+        string calldata _alias,
+        bytes calldata _initData
+    ) external payable override {
+        address paymaster = _paymasterFactory.getPaymasterAddress(_salt, _owner, _feeTo);
 
         _paymasters[paymaster] = true;
 
+        if (paymaster != _paymasterFactory.createPaymaster{value: msg.value}(_salt, _owner, _feeTo)) {
+            revert FuzionRouter__NotExpectedPaymaster();
+        }
+
         emit PaymasterCreated(paymaster, _owner, _alias);
+
+        IFuzionPaymaster(paymaster).initialize(_initData);
     }
 
     function registerModule(address _module) external override {

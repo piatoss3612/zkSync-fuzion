@@ -16,6 +16,7 @@ interface IFuzionPaymaster is IPaymaster, IERC165 {
     event DefaultModulesSet(address[] validators, address payport, address hook);
     event FeeToSet(address feeTo);
 
+    function initialize(bytes calldata _initData) external;
     function installModule(ModuleType moduleType, address _module, bytes calldata _initData) external payable;
     function installModuleAndSetDefault(ModuleType moduleType, address _module, bytes calldata _initData)
         external
