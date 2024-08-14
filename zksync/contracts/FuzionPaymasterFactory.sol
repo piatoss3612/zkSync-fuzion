@@ -12,6 +12,10 @@ contract FuzionPaymasterFactory {
 
     bytes32 private _bytecodeHash;
 
+    constructor(bytes32 bytecodeHash) {
+        _bytecodeHash = bytecodeHash;
+    }
+
     function createPaymaster(bytes32 _salt, address _owner, address _feeTo)
         external
         payable
