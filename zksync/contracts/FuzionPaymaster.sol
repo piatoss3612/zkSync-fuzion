@@ -16,15 +16,31 @@ import "@matterlabs/zksync-contracts/l2/system-contracts/Constants.sol";
 
 // Fuzion
 import {IFuzionPaymaster} from "./interfaces/IFuzionPaymaster.sol";
-import {ModuleType, PreparePaymentData, PrepareRefundData} from "./interfaces/IModule.sol";
+import {
+    ModuleType, PreparePaymentData, PrepareRefundData, IValidator, IPayport, IHook
+} from "./interfaces/IModule.sol";
 import {ModuleManager} from "./core/ModuleManager.sol";
 import {FeeManager} from "./core/FeeManager.sol";
 
 // OpenZeppelin
+import {IERC20, SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {IERC165} from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 contract FuzionPaymaster is ModuleManager, FeeManager, Ownable {
+    /*//////////////////////////////////////////////////////////////
+                            MODIFIERS
+    //////////////////////////////////////////////////////////////*/
+    modifier hookExecution(bytes32 _txHash, bytes32 _suggestedSignedHash, Transaction calldata _transaction) {
+        bytes memory hookContext =
+            _beforeValidateAndPayForPaymasterTransaction(_txHash, _suggestedSignedHash, _transaction);
+        _;
+        _afterValidateAndPayForPaymasterTransaction(hookContext);
+    }
+
+    /*//////////////////////////////////////////////////////////////
+                            CONSTRUCTOR
+    //////////////////////////////////////////////////////////////*/
     constructor(address _owner, address _feeToAddress) payable FeeManager(_feeToAddress) Ownable(_owner) {}
 
     /*//////////////////////////////////////////////////////////////
@@ -34,7 +50,13 @@ contract FuzionPaymaster is ModuleManager, FeeManager, Ownable {
         bytes32 _txHash,
         bytes32 _suggestedSignedHash,
         Transaction calldata _transaction
-    ) external payable onlyBootloader returns (bytes4 magic, bytes memory context) {
+    )
+        external
+        payable
+        onlyBootloader
+        hookExecution(_txHash, _suggestedSignedHash, _transaction)
+        returns (bytes4 magic, bytes memory context)
+    {
         // Validate the transaction.
         string memory reason;
         (magic, reason) = _validateTransaction(_txHash, _suggestedSignedHash, _transaction);
@@ -124,21 +146,54 @@ contract FuzionPaymaster is ModuleManager, FeeManager, Ownable {
         view
         returns (bytes4 magic, string memory reason)
     {
-        // TODO: Implement the logic to validate the transaction.
-        return (PAYMASTER_VALIDATION_SUCCESS_MAGIC, "");
+        // If there is no default validator, the transaction is considered valid by default.
+        magic = PAYMASTER_VALIDATION_SUCCESS_MAGIC;
+
+        address[] memory _validators = defaultValidators();
+
+        // Validate the transaction. If any validator fails,
+        // the transaction is considered invalid, but not reverted immediately.
+        for (uint256 i = 0; i < _validators.length; i++) {
+            try IValidator(_validators[i]).validateTransaction(_txHash, _suggestedSignedHash, _transaction) returns (
+                bool isValid
+            ) {
+                if (!isValid) {
+                    magic = bytes4(0);
+                    reason = "Transaction validation failed.";
+                    break;
+                }
+            } catch (bytes memory returnData) {
+                magic = bytes4(0);
+                reason = string(returnData);
+                break;
+            }
+        }
     }
 
     function _preparePayment(Transaction calldata _transaction)
         internal
-        view
         returns (PreparePaymentData memory paymentData)
     {
-        // TODO: Implement the logic to prepare payment for the paymaster.
-        return PreparePaymentData({
-            paymasterInputSelector: IPaymasterFlow.general.selector,
-            from: address(this),
+        address _defaultPayport = defaultPayport();
+        if (_defaultPayport != address(0)) {
+            return IPayport(_defaultPayport).preparePayment(_transaction);
+        }
+
+        // If there is no default payport, the payment is considered prepared by default.
+        if (_transaction.paymasterInput.length < 4) {
+            revert InvalidPaymasterInput();
+        }
+
+        bytes4 paymasterInputSelector = bytes4(_transaction.paymasterInput[0:4]);
+        if (paymasterInputSelector != IPaymasterFlow.general.selector) {
+            revert UnsupportedPaymasterFlow();
+        }
+
+        paymentData = PreparePaymentData({
+            paymasterInputSelector: paymasterInputSelector,
+            from: address(0),
             token: address(0),
-            requiredETH: _transaction.gasLimit * _transaction.maxFeePerGas,
+            requiredETH: uint96(_transaction.gasLimit * _transaction.maxFeePerGas),
             requiredToken: 0,
             extraData: ""
         });
@@ -148,8 +203,18 @@ contract FuzionPaymaster is ModuleManager, FeeManager, Ownable {
         internal
         returns (bytes memory context)
     {
-        // TODO: Implement the logic to pay for the paymaster transaction.
+        // Encode the payment data to be returned as context.
         context = abi.encode(_paymentData);
+
+        // Check if the paymaster flow is approval-based.
+        if (_paymentData.paymasterInputSelector == IPaymasterFlow.approvalBased.selector) {
+            // Transfer the required amount of token to this contract.
+            SafeERC20.safeTransferFrom(
+                IERC20(_paymentData.token), _paymentData.from, address(this), _paymentData.requiredToken
+            );
+        }
+
+        // Transfer the required amount of ETH to the paymaster.
         _payForPaymasterTransaction(_paymentData.requiredETH);
     }
 
@@ -160,10 +225,45 @@ contract FuzionPaymaster is ModuleManager, FeeManager, Ownable {
         bytes32 _suggestedSignedHash,
         ExecutionResult _txResult,
         uint256 _maxRefundedGas
-    ) internal view returns (PrepareRefundData memory refundData) {
-        // TODO: Implement the logic to prepare refund for the paymaster.
-        return PrepareRefundData({to: address(0), feeToCharge: 0, amount: 0});
+    ) internal returns (PrepareRefundData memory refundData) {
+        // Decode the payment data from the context.
+        PreparePaymentData memory paymentData = abi.decode(context, (PreparePaymentData));
+
+        // If there is no default payport, the refund is not supported.
+        address _defaultPayport = defaultPayport();
+        if (_defaultPayport != address(0)) {
+            refundData = IPayport(_defaultPayport).prepareRefund(
+                _transaction, paymentData, _txHash, _suggestedSignedHash, _txResult, _maxRefundedGas
+            );
+        }
     }
 
-    function _refund(PrepareRefundData memory _refundData) internal {}
+    function _refund(PrepareRefundData memory _refundData) internal {
+        // If amount is greater than 0, transfer the refund amount to the user.
+        if (_refundData.amount > 0) {
+            // Transfer the refund amount to the user.
+            SafeERC20.safeTransfer(IERC20(_refundData.token), _refundData.to, _refundData.amount);
+        }
+
+        // If feeTo is set, transfer the fee to the feeTo address.
+        _transferFee(_refundData.token, _refundData.fee);
+    }
+
+    function _beforeValidateAndPayForPaymasterTransaction(
+        bytes32 _txHash,
+        bytes32 _suggestedSignedHash,
+        Transaction calldata _transaction
+    ) internal returns (bytes memory hookContext) {
+        address _defaultHook = defaultHook();
+        if (_defaultHook != address(0)) {
+            hookContext = IHook(_defaultHook).preCheck(_txHash, _suggestedSignedHash, _transaction);
+        }
+    }
+
+    function _afterValidateAndPayForPaymasterTransaction(bytes memory hookContext) internal {
+        address _defaultHook = defaultHook();
+        if (_defaultHook != address(0)) {
+            IHook(_defaultHook).postCheck(hookContext);
+        }
+    }
 }

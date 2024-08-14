@@ -44,12 +44,13 @@ struct PreparePaymentData {
 }
 
 struct PrepareRefundData {
+    address token; // Not zero if token transfer is required.
     address to; // Address to transfer refund to.
-    uint96 feeToCharge; // Fee to charge from the refund (to cover the gas cost paymaster spent for additional checks).
+    uint96 fee; // Fee to charge from the refund (to cover the gas cost paymaster spent for additional checks).
     uint256 amount; // Amount of token to refund excluding fee.
 }
 
-interface IPayment is IModule {
+interface IPayport is IModule {
     function preparePayment(Transaction calldata _transaction)
         external
         returns (PreparePaymentData memory paymentData);
@@ -64,7 +65,7 @@ interface IPayment is IModule {
 }
 
 interface IHook is IModule {
-    function preCheck(address msgSender, uint256 msgValue, bytes calldata msgData)
+    function preCheck(bytes32 _txHash, bytes32 _suggestedSignedHash, Transaction calldata _transaction)
         external
         returns (bytes memory hookContext);
 

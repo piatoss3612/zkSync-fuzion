@@ -222,19 +222,19 @@ abstract contract ModuleManager is IFuzionPaymaster, PaymasterBase {
         return _checkModuleInstalled(_module) && _validateModuleType(moduleType, _module);
     }
 
-    function defaultValidators() external view returns (address[] memory) {
+    function defaultValidators() public view returns (address[] memory) {
         return _defaultValidators;
     }
 
-    function defaultValidator(uint256 index) external view returns (address) {
+    function defaultValidator(uint256 index) public view returns (address) {
         return _defaultValidators[index];
     }
 
-    function defaultPayport() external view returns (address) {
+    function defaultPayport() public view returns (address) {
         return _defaultPayport;
     }
 
-    function defaultHook() external view returns (address) {
+    function defaultHook() public view returns (address) {
         return _defaultHook;
     }
 }

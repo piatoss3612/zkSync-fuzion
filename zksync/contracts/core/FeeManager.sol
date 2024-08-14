@@ -2,6 +2,7 @@
 pragma solidity ^0.8.24;
 
 import {IFuzionPaymaster} from "../interfaces/IFuzionPaymaster.sol";
+import {IERC20, SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 abstract contract FeeManager is IFuzionPaymaster {
     error FailToTransferFee();
@@ -12,16 +13,13 @@ abstract contract FeeManager is IFuzionPaymaster {
         _feeTo = _feeToAddress;
     }
 
-    function _transferFee(uint256 _fee) internal {
+    function _transferFee(address _token, uint256 _fee) internal {
         if (_feeTo == address(0)) {
             return;
         }
 
         if (_fee > 0) {
-            (bool success,) = _feeTo.call{value: _fee}("");
-            if (!success) {
-                revert FailToTransferFee();
-            }
+            SafeERC20.safeTransfer(IERC20(_token), _feeTo, _fee);
         }
     }
 

@@ -7,6 +7,8 @@ import {IModule, ModuleType} from "./IModule.sol";
 
 interface IFuzionPaymaster is IPaymaster, IERC165 {
     error ValidationFailed(string reason);
+    error InvalidPaymasterInput();
+    error UnsupportedPaymasterFlow();
 
     event ModuleInstalled(ModuleType moduleType, address module);
     event ModuleUninstalled(ModuleType moduleType, address module);
