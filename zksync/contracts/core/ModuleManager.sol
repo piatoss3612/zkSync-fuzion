@@ -30,6 +30,11 @@ abstract contract ModuleManager is IFuzionPaymaster, PaymasterBase, Initializabl
     address private _defaultHook;
 
     function initialize(bytes calldata _initData) external override initializer {
+        if (_initData.length == 0) {
+            // No default modules to install
+            return;
+        }
+
         // Initialize the default modules
         ModuleInitData[] memory modules = abi.decode(_initData, (ModuleInitData[]));
         for (uint256 i = 0; i < modules.length; i++) {

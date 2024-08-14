@@ -15,31 +15,31 @@ import { concat, Contract, parseEther, randomBytes, Signature } from "ethers";
 import { EIP712Signer, Provider, Wallet } from "zksync-ethers";
 import { Eip712Meta, Transaction } from "zksync-ethers/build/types";
 
+export async function deployFactory(
+  deployer: Deployer,
+  factoryArtifactName: string,
+  contractArtifactName: string
+): Promise<Contract> {
+  const factoryArtifact = await deployer.loadArtifact(factoryArtifactName);
+  const contractArtifact = await deployer.loadArtifact(contractArtifactName);
+
+  const contractBytecodeHash = hashBytecode(contractArtifact.bytecode);
+
+  const factory = await deployer.deploy(
+    factoryArtifact,
+    [contractBytecodeHash],
+    undefined,
+    undefined,
+    [contractArtifact.bytecode]
+  );
+
+  return factory;
+}
+
 describe("FuzionPaymasterFactory", function () {
   let provider: Provider;
   let wallet: Wallet;
   let deployer: Deployer;
-
-  async function deployFactory(
-    deployer: Deployer,
-    factoryArtifactName: string,
-    contractArtifactName: string
-  ): Promise<Contract> {
-    const factoryArtifact = await deployer.loadArtifact(factoryArtifactName);
-    const contractArtifact = await deployer.loadArtifact(contractArtifactName);
-
-    const contractBytecodeHash = hashBytecode(contractArtifact.bytecode);
-
-    const factory = await deployer.deploy(
-      factoryArtifact,
-      [contractBytecodeHash],
-      undefined,
-      undefined,
-      [contractArtifact.bytecode]
-    );
-
-    return factory;
-  }
 
   before(async function () {
     provider = getProvider();
@@ -90,10 +90,7 @@ describe("FuzionPaymasterFactory", function () {
       feeTo
     );
 
-    await await factory.createPaymaster(salt, owner, feeTo);
-
-    await wallet.sendTransaction({
-      to: paymasterAddress,
+    await await factory.createPaymaster(salt, owner, feeTo, {
       value: parseEther("0.1"),
     });
 

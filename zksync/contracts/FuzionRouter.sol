@@ -10,7 +10,6 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 contract FuzionRouter is IFuzionRouter, Ownable {
     FuzionPaymasterFactory private immutable _paymasterFactory;
 
-    mapping(address paymaster => bool isPaymasterRegistered) private _paymasters;
     mapping(address module => bool isModuleRegistered) private _modules;
 
     constructor(address _paymasterFactoryAddress, address _owner) Ownable(_owner) {
@@ -29,9 +28,6 @@ contract FuzionRouter is IFuzionRouter, Ownable {
         bytes calldata _initData
     ) external payable override {
         address paymaster = _paymasterFactory.getPaymasterAddress(_salt, _owner, _feeTo);
-
-        _paymasters[paymaster] = true;
-
         if (paymaster != _paymasterFactory.createPaymaster{value: msg.value}(_salt, _owner, _feeTo)) {
             revert FuzionRouter__NotExpectedPaymaster();
         }
