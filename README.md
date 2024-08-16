@@ -3,6 +3,7 @@
 <h1>Fuzion</h1>
 <img src="./assets/logo.png" alt="Fuzion Logo" width="200" height="200" />
 <h3>Easy way to manage ZKsync Paymasters</h3>
+<a href="https://app.akindo.io/communities/83VVgQEVBiwvgw3a/products/WjW1oLrd2UNe02xB">AKINDO</a>
 </div>
 
 ## Table of Contents
@@ -11,17 +12,18 @@
 - [Inspiration](#inspiration)
 - [Features](#features)
 - [Paymaster Structure](#paymaster-structure)
+- [Progress](#progress)
 - [Installation](#installation)
 - [License](#license)
 - [Contributions](#contributions)
 
 ## Introduction
 
-Fuzion is a simple and easy way to deploy and manage ZKsync paymasters. It is a web application that allows users to deploy and manage paymasters on ZKsync in a few clicks.
+Fuzion is a simple and easy way to deploy and manage ZKsync paymasters. It is a web application that allows developers to deploy paymasters on ZKsync with a few clicks. The paymaster is designed in a composable way, making it easy to manage and update the paymaster.
 
 ## Inspiration
 
-I found that most of the projects just use the basic paymaster provided by ZKsync. I wanted to create a simple and easy way to deploy and manage paymasters and make more developers use paymasters in a more easy way.
+I found that most of the projects just use the basic paymaster provided by ZKsync. But we can do a lot more with the paymaster and have to consider different use cases like user verification, payment processing, and other custom logic. So, I decided to build a platform that allows developers to deploy and manage paymasters easily. This will help developers to focus on their core product and not worry about the paymaster.
 
 ## Features
 
@@ -31,11 +33,15 @@ Deploy Paymaster on ZKsync with a few clicks. Just enter the required details an
 
 ### Manage Paymaster
 
-Deployed paymasters can be managed easily. You can view the details of the Paymaster and also update the Paymaster.
+Deployed paymasters can be managed easily. You can view the list of paymasters, details of the paymaster, and update the paymaster.
 
 ### Composable Paymaster
 
 The Paymaster is designed in a composable way. It is divided into different modules like Validator, Payport, and Hook. This makes it easy to manage and update the Paymaster.
+
+### Modules
+
+Anyone can create and register their own modules. These modules can be used in the Paymaster to add custom logic.
 
 ## Paymaster Structure
 
@@ -83,9 +89,20 @@ This function handles any post-transaction tasks that might be necessary after a
 - **Payport (Pink)**: Prepares payments and refunds.
 - **Hook (Yellow)**: Manages pre- and post-transaction checks and allows for additional logic to be implemented.
 
-### Note on Payment
+### Note on Payment and Refund
 
 The actual payment and refund are handled by the Paymaster contract. Because modules are designed to be called externally to prevent the storage collision and other possible errors by using the delegatecall method, the payment and refund are done by the Paymaster contract.
+
+## Progress
+
+- [x] Basic UI Design
+- [x] Wallet Connection and Login
+- [x] Design Paymaster Structure
+- [x] Paymaster Deployment on web app
+- [x] Paymaster List by User
+- [ ] Paymaster Details
+- [ ] Paymaster Module Registration
+- [ ] Paymaster Update
 
 ## Installation
 
