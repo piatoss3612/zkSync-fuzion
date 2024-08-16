@@ -62,9 +62,17 @@ contract ERC721Gate is IValidator {
             || interfaceId == type(IERC165).interfaceId;
     }
 
+    function gatekeeperOf(address _account) external view returns (address) {
+        return _gatekeepers[_account];
+    }
+
     function _onInstall(address _erc721) internal {
-        if (_erc721 == address(0) || !IERC721(_erc721).supportsInterface(type(IERC721).interfaceId)) {
-            revert("ERC721Gate: invalid ERC721");
+        if (_erc721 == address(0)) {
+            revert("ERC721Gate: zero address");
+        }
+
+        if (!IERC721(_erc721).supportsInterface(type(IERC721).interfaceId)) {
+            revert("ERC721Gate: invalid ERC721 interface");
         }
 
         address caller = msg.sender;
