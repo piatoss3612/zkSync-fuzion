@@ -22,7 +22,7 @@ enum ModuleType {
 ///      name: Name of the module
 ///      version: Version of the module
 ///      author: Author of the module
-///      installDataSignature: Signature of the install data
+///      installDataSignature: Signature of the install data, ex) "onInstall(address)"
 struct ModuleMetadata {
     ModuleType moduleType;
     string name;
