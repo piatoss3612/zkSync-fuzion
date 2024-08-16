@@ -9,6 +9,7 @@ import hre from "hardhat";
 import { Deployer } from "@matterlabs/hardhat-zksync";
 import {
   DEFAULT_GAS_PER_PUBDATA_LIMIT,
+  getPaymasterParams,
   hashBytecode,
 } from "zksync-ethers/build/utils";
 import { concat, Contract, parseEther, randomBytes, Signature } from "ethers";
@@ -49,6 +50,7 @@ describe("FuzionPaymasterFactory", function () {
   });
 
   it("Should deploy FuzionPaymasterFactory and create a paymaster", async function () {
+    // Deploy Factory
     const factory = await deployFactory(
       deployer,
       "FuzionPaymasterFactory",
@@ -59,21 +61,26 @@ describe("FuzionPaymasterFactory", function () {
     const owner = wallet.address;
     const feeTo = wallet.address;
 
+    // Get expected paymaster address
     const expectedPaymasterAddress = await factory.getPaymasterAddress(
       salt,
       owner,
       feeTo
     );
 
+    // Create paymaster
     const tx = await factory.createPaymaster(salt, owner, feeTo);
     const receipt = await tx.wait();
 
+    // Get actual paymaster address
     const actualPaymasterAddress = receipt.contractAddress;
 
+    // Check if paymaster address is correct
     expect(actualPaymasterAddress).to.be.equal(expectedPaymasterAddress);
   });
 
   it("Should create a paymaster and interact with it", async function () {
+    // Deploy Factory
     const factory = await deployFactory(
       deployer,
       "FuzionPaymasterFactory",
@@ -90,22 +97,33 @@ describe("FuzionPaymasterFactory", function () {
       feeTo
     );
 
+    // Create paymaster with some deposit
     await await factory.createPaymaster(salt, owner, feeTo, {
       value: parseEther("0.1"),
     });
 
+    // Get paymaster balance
     const balance = await provider.getBalance(paymasterAddress);
 
+    // Check if paymaster has the deposit
     expect(balance).to.be.equal(parseEther("0.1"));
 
+    // Deploy Counter contract
     const counter = await deployContract("Counter", [], {
       wallet,
       silent: true,
     });
 
+    // Get count before increment
     const countBefore = BigInt(await counter.count());
 
+    // Increment count
     let tx = await counter.increment.populateTransaction();
+
+    const paymasterParams = getPaymasterParams(paymasterAddress, {
+      type: "General",
+      innerInput: new Uint8Array(),
+    });
 
     tx = {
       ...tx,
@@ -117,6 +135,7 @@ describe("FuzionPaymasterFactory", function () {
       value: BigInt(0),
       customData: {
         gasPerPubdata: DEFAULT_GAS_PER_PUBDATA_LIMIT,
+        paymasterParams,
       } as Eip712Meta,
     };
 
@@ -132,14 +151,17 @@ describe("FuzionPaymasterFactory", function () {
       customSignature: signature,
     };
 
+    // Send the raw transaction
     const sentTx = await provider.broadcastTransaction(
       Transaction.from(tx).serialized
     );
 
     await sentTx.wait();
 
+    // Get count after increment
     const countAfter = BigInt(await counter.count());
 
+    // Check if count is incremented
     expect(countAfter).to.be.equal(countBefore + BigInt(1));
   });
 });

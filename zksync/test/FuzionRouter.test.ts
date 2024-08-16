@@ -7,7 +7,10 @@ import {
 } from "../deploy/utils";
 import hre from "hardhat";
 import { Deployer } from "@matterlabs/hardhat-zksync";
-import { DEFAULT_GAS_PER_PUBDATA_LIMIT } from "zksync-ethers/build/utils";
+import {
+  DEFAULT_GAS_PER_PUBDATA_LIMIT,
+  getPaymasterParams,
+} from "zksync-ethers/build/utils";
 import { concat, parseEther, randomBytes, Signature } from "ethers";
 import { EIP712Signer, Provider, Wallet } from "zksync-ethers";
 import { Eip712Meta, Transaction } from "zksync-ethers/build/types";
@@ -26,6 +29,7 @@ describe("FuzionRouter", function () {
   });
 
   it("Should deploy FuzionRouter", async function () {
+    // Deploy Factory
     const factory = await deployFactory(
       deployer,
       "FuzionPaymasterFactory",
@@ -34,6 +38,7 @@ describe("FuzionRouter", function () {
 
     const factoryAddress = await factory.getAddress();
 
+    // Deploy Router
     const router = await deployContract(
       "FuzionRouter",
       [factoryAddress, wallet.address],
@@ -43,11 +48,13 @@ describe("FuzionRouter", function () {
       }
     );
 
+    // Check if the factory and owner are set correctly
     expect(await router.factory()).to.be.equal(factoryAddress);
     expect(await router.owner()).to.be.equal(wallet.address);
   });
 
   it("Should deploy FuzionRouter and call createPaymaster without init data", async function () {
+    // Deploy Factory
     const factory = await deployFactory(
       deployer,
       "FuzionPaymasterFactory",
@@ -56,6 +63,7 @@ describe("FuzionRouter", function () {
 
     const factoryAddress = await factory.getAddress();
 
+    // Deploy Router
     const router = await deployContract(
       "FuzionRouter",
       [factoryAddress, wallet.address],
@@ -71,12 +79,14 @@ describe("FuzionRouter", function () {
     const alias = "MyPaymaster";
     const initData = "0x";
 
+    // Get expected paymaster address
     const paymasterAddress = await factory.getPaymasterAddress(
       salt,
       owner,
       feeTo
     );
 
+    // Create paymaster with some deposit
     const tx = await router.createPaymaster(
       salt,
       owner,
@@ -90,14 +100,17 @@ describe("FuzionRouter", function () {
 
     const receipt = await tx.wait();
 
+    // Get actual paymaster address and check if it's correct
     expect(receipt.contractAddress).to.be.equal(paymasterAddress);
 
     const paymasterBalance = await provider.getBalance(paymasterAddress);
 
+    // Check if paymaster has the deposit
     expect(paymasterBalance).to.be.equal(parseEther("0.1"));
   });
 
   it("Should create a paymaster and interact with it", async function () {
+    // Deploy Factory
     const factory = await deployFactory(
       deployer,
       "FuzionPaymasterFactory",
@@ -106,6 +119,7 @@ describe("FuzionRouter", function () {
 
     const factoryAddress = await factory.getAddress();
 
+    // Deploy Router
     const router = await deployContract(
       "FuzionRouter",
       [factoryAddress, wallet.address],
@@ -127,18 +141,27 @@ describe("FuzionRouter", function () {
       feeTo
     );
 
+    // Create paymaster with some deposit
     await router.createPaymaster(salt, owner, feeTo, alias, initData, {
       value: parseEther("0.1"),
     });
 
+    // Deploy Counter contract
     const counter = await deployContract("Counter", [], {
       wallet,
       silent: true,
     });
 
+    // Get count before increment
     const countBefore = BigInt(await counter.count());
 
+    // Increment count
     let tx = await counter.increment.populateTransaction();
+
+    const paymasterParams = getPaymasterParams(paymasterAddress, {
+      type: "General",
+      innerInput: new Uint8Array(),
+    });
 
     tx = {
       ...tx,
@@ -150,6 +173,7 @@ describe("FuzionRouter", function () {
       value: BigInt(0),
       customData: {
         gasPerPubdata: DEFAULT_GAS_PER_PUBDATA_LIMIT,
+        paymasterParams,
       } as Eip712Meta,
     };
 
@@ -165,14 +189,17 @@ describe("FuzionRouter", function () {
       customSignature: signature,
     };
 
+    // Send raw transaction
     const sentTx = await provider.broadcastTransaction(
       Transaction.from(tx).serialized
     );
 
     await sentTx.wait();
 
+    // Get count after increment
     const countAfter = BigInt(await counter.count());
 
+    // Check if count was incremented
     expect(countAfter).to.be.equal(countBefore + BigInt(1));
   });
 
