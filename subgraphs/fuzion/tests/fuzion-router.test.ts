@@ -4,57 +4,79 @@ import {
   test,
   clearStore,
   beforeAll,
-  afterAll,
-} from "matchstick-as";
-import { Address } from "@graphprotocol/graph-ts";
-import { OwnershipTransferred } from "../generated/schema";
-import { OwnershipTransferred as OwnershipTransferredEvent } from "../generated/fuzion_router/fuzion_router";
-import { handleOwnershipTransferred } from "../src/fuzion-router";
-import { createOwnershipTransferredEvent } from "./fuzion-router-utils";
+  afterAll
+} from "matchstick-as/assembly/index"
+import { Address, BigInt } from "@graphprotocol/graph-ts"
+import { ModuleRatingUpdated } from "../generated/schema"
+import { ModuleRatingUpdated as ModuleRatingUpdatedEvent } from "../generated/FuzionRouter/FuzionRouter"
+import { handleModuleRatingUpdated } from "../src/fuzion-router"
+import { createModuleRatingUpdatedEvent } from "./fuzion-router-utils"
 
 // Tests structure (matchstick-as >=0.5.0)
 // https://thegraph.com/docs/en/developer/matchstick/#tests-structure-0-5-0
 
 describe("Describe entity assertions", () => {
   beforeAll(() => {
-    let previousOwner = Address.fromString(
+    let module = Address.fromString(
       "0x0000000000000000000000000000000000000001"
-    );
-    let newOwner = Address.fromString(
-      "0x0000000000000000000000000000000000000001"
-    );
-    let newOwnershipTransferredEvent = createOwnershipTransferredEvent(
-      previousOwner,
-      newOwner
-    );
-    handleOwnershipTransferred(newOwnershipTransferredEvent);
-  });
+    )
+    let rater = Address.fromString("0x0000000000000000000000000000000000000001")
+    let rating = 123
+    let totalRating = BigInt.fromI32(234)
+    let totalCount = BigInt.fromI32(234)
+    let newModuleRatingUpdatedEvent = createModuleRatingUpdatedEvent(
+      module,
+      rater,
+      rating,
+      totalRating,
+      totalCount
+    )
+    handleModuleRatingUpdated(newModuleRatingUpdatedEvent)
+  })
 
   afterAll(() => {
-    clearStore();
-  });
+    clearStore()
+  })
 
   // For more test scenarios, see:
   // https://thegraph.com/docs/en/developer/matchstick/#write-a-unit-test
 
-  test("OwnershipTransferred created and stored", () => {
-    assert.entityCount("OwnershipTransferred", 1);
+  test("ModuleRatingUpdated created and stored", () => {
+    assert.entityCount("ModuleRatingUpdated", 1)
 
     // 0xa16081f360e3847006db660bae1c6d1b2e17ec2a is the default address used in newMockEvent() function
     assert.fieldEquals(
-      "OwnershipTransferred",
+      "ModuleRatingUpdated",
       "0xa16081f360e3847006db660bae1c6d1b2e17ec2a-1",
-      "previousOwner",
+      "module",
       "0x0000000000000000000000000000000000000001"
-    );
+    )
     assert.fieldEquals(
-      "OwnershipTransferred",
+      "ModuleRatingUpdated",
       "0xa16081f360e3847006db660bae1c6d1b2e17ec2a-1",
-      "newOwner",
+      "rater",
       "0x0000000000000000000000000000000000000001"
-    );
+    )
+    assert.fieldEquals(
+      "ModuleRatingUpdated",
+      "0xa16081f360e3847006db660bae1c6d1b2e17ec2a-1",
+      "rating",
+      "123"
+    )
+    assert.fieldEquals(
+      "ModuleRatingUpdated",
+      "0xa16081f360e3847006db660bae1c6d1b2e17ec2a-1",
+      "totalRating",
+      "234"
+    )
+    assert.fieldEquals(
+      "ModuleRatingUpdated",
+      "0xa16081f360e3847006db660bae1c6d1b2e17ec2a-1",
+      "totalCount",
+      "234"
+    )
 
     // More assert options:
     // https://thegraph.com/docs/en/developer/matchstick/#asserts
-  });
-});
+  })
+})

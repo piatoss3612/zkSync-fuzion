@@ -94,14 +94,14 @@ const Page = () => {
   useEffect(() => {
     if (data) {
       // remove duplicates
-      const newPaymasters = data.pages.reduce((acc, page) => {
-        const paymasters = page.paymasterCreateds.filter(
-          (paymaster) => !acc.some((p) => p.id === paymaster.id)
-        );
-        return [...acc, ...paymasters];
-      }, paymasters);
-
-      setPaymasters(newPaymasters);
+      setPaymasters((prev) => {
+        return data.pages.reduce((acc, page) => {
+          const paymasters = page.paymasterCreateds.filter(
+            (paymaster) => !acc.some((p) => p.id === paymaster.id)
+          );
+          return [...acc, ...paymasters];
+        }, prev);
+      });
     }
   }, [data]);
 

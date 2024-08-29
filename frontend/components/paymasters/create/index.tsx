@@ -7,8 +7,6 @@ import {
   Input,
   InputLeftElement,
   InputGroup,
-  Select,
-  Text,
   VStack,
 } from "@chakra-ui/react";
 import { FormikProps } from "formik";
@@ -17,57 +15,24 @@ import { FaEthereum } from "react-icons/fa6";
 interface PaymasterCreateFormProps {
   formik: FormikProps<{
     name: string;
-    factory: `0x${string}`;
     owner: `0x${string}`;
+    feeTo: `0x${string}`;
+    seed: string;
     deposit: number;
   }>;
-  supportedFactories: {
-    address: `0x${string}`;
-    name: string;
-    description: string;
-  }[];
   isLoading: boolean;
 }
 
 const PaymasterCreateForm = ({
   formik,
-  supportedFactories,
   isLoading,
 }: PaymasterCreateFormProps) => {
   const { address } = useAuth();
 
   return (
     <form onSubmit={formik.handleSubmit}>
-      <VStack spacing={4}>
+      <VStack spacing={4} my={2}>
         <Heading size="md">Create Paymaster</Heading>
-        <FormControl>
-          <FormLabel htmlFor="factory">Factory</FormLabel>
-          <Select
-            placeholder="Select factory"
-            variant="filled"
-            id="factory"
-            name="factory"
-            onChange={formik.handleChange}
-            value={formik.values.factory}
-          >
-            {supportedFactories.map((factory) => (
-              <>
-                <option key={factory.address} value={factory.address}>
-                  {factory.name}
-                </option>
-              </>
-            ))}
-          </Select>
-          {formik.values.factory && (
-            <Text fontSize="sm" color="gray.500" textAlign="center">
-              {
-                supportedFactories.find(
-                  (factory) => factory.address === formik.values.factory
-                )?.description
-              }
-            </Text>
-          )}
-        </FormControl>
         <FormControl>
           <FormLabel htmlFor="name">Paymaster Name</FormLabel>
           <Input
@@ -97,8 +62,40 @@ const PaymasterCreateForm = ({
             mx={2}
             onClick={() => formik.setFieldValue("owner", address)}
           >
-            Use My Wallet
+            Use My Address
           </Button>
+        </FormControl>
+        <FormControl>
+          <FormLabel htmlFor="feeTo">Fee To</FormLabel>
+          <Input
+            id="feeTo"
+            name="feeTo"
+            type="feeTo"
+            variant="filled"
+            onChange={formik.handleChange}
+            value={formik.values.feeTo}
+          />
+          <Button
+            size="sm"
+            colorScheme="blue"
+            variant="link"
+            mt={2}
+            mx={2}
+            onClick={() => formik.setFieldValue("feeTo", address)}
+          >
+            Use My Address
+          </Button>
+        </FormControl>
+        <FormControl>
+          <FormLabel htmlFor="seed">Seed</FormLabel>
+          <Input
+            id="seed"
+            name="seed"
+            type="seed"
+            variant="filled"
+            onChange={formik.handleChange}
+            value={formik.values.seed}
+          />
         </FormControl>
         <FormControl>
           <FormLabel htmlFor="deposit">Deposit</FormLabel>
@@ -121,6 +118,7 @@ const PaymasterCreateForm = ({
           colorScheme="blue"
           width="full"
           isLoading={isLoading}
+          mt={2}
         >
           Create
         </Button>

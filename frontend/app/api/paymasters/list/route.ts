@@ -2,7 +2,7 @@ import { authOptions } from "@/libs/auth";
 import { getServerSession } from "next-auth";
 import { request, gql } from "graphql-request";
 import { NextRequest, NextResponse } from "next/server";
-import { PaymasterCreated, PaymasterCreateds } from "@/types";
+import { PaymasterCreateds } from "@/types";
 
 const SUBGRAPH_URL =
   "https://api.studio.thegraph.com/query/68882/fuzion/version/latest";

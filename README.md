@@ -93,6 +93,10 @@ This function handles any post-transaction tasks that might be necessary after a
 
 The actual payment and refund are handled by the Paymaster contract. Because modules are designed to be called externally to prevent the storage collision and other possible errors by using the delegatecall method, the payment and refund are done by the Paymaster contract.
 
+### Why default modules are required?
+
+In the case of modular account, the user can choose which module to call when initiating the transaction. But in the case of the paymaster, the paymaster contract is the one that calls the modules and pays for the transaction. Thus, the paymaster contract needs to know which module to call not the user. That's why the default modules are defined in the FuzionPaymaster contract. It should be controlled by the admin of the paymaster not the user.
+
 ## Progress
 
 - [x] Basic UI Design

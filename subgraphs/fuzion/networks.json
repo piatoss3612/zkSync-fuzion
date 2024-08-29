@@ -1,8 +1,8 @@
 {
   "zksync-era-sepolia": {
-    "fuzion_router": {
-      "address": "0x40C0222E7364F3f3ED57A941aAF874E5855be01d",
-      "startBlock": 3562036
+    "FuzionRouter": {
+      "address": "0x74608B43B5533F52d518f4B6d19933dEe757f67e",
+      "startBlock": 3700964
     }
   }
 }

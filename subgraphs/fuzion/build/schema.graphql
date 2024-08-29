@@ -1,3 +1,25 @@
+type ModuleRatingUpdated @entity(immutable: true) {
+  id: Bytes!
+  module: Bytes! # address
+  rater: Bytes! # address
+  rating: Int! # uint8
+  totalRating: BigInt! # uint256
+  totalCount: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type ModuleRegistered @entity(immutable: true) {
+  id: Bytes!
+  module: Bytes! # address
+  moduleType: Int! # uint8
+  name: String! # string
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
 type OwnershipTransferred @entity(immutable: true) {
   id: Bytes!
   previousOwner: Bytes! # address
@@ -9,18 +31,9 @@ type OwnershipTransferred @entity(immutable: true) {
 
 type PaymasterCreated @entity(immutable: true) {
   id: Bytes!
-  paymasterFactory: Bytes! # address
   paymaster: Bytes! # address
   owner: Bytes! # address
   name: String! # string
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
-type PaymasterFactorySet @entity(immutable: true) {
-  id: Bytes!
-  paymasterFactory: Bytes! # address
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!

@@ -2,11 +2,10 @@
 pragma solidity ^0.8.24;
 
 import {IFuzionPaymaster} from "../interfaces/IFuzionPaymaster.sol";
-import {IModule, ModuleType, ModuleInitData} from "../interfaces/IModule.sol";
+import {IModule, ModuleType} from "../interfaces/IModule.sol";
 import {PaymasterBase} from "./PaymasterBase.sol";
-import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 
-abstract contract ModuleManager is IFuzionPaymaster, PaymasterBase, Initializable {
+abstract contract ModuleManager is IFuzionPaymaster, PaymasterBase {
     /*//////////////////////////////////////////////////////////////
                                  ERRORS
     //////////////////////////////////////////////////////////////*/
@@ -29,25 +28,6 @@ abstract contract ModuleManager is IFuzionPaymaster, PaymasterBase, Initializabl
     address private _defaultPayport;
     address private _defaultHook;
 
-    function initialize(bytes calldata _initData) external override initializer {
-        if (_initData.length == 0) {
-            // No default modules to install
-            return;
-        }
-
-        // Initialize the default modules
-        ModuleInitData[] memory modules = abi.decode(_initData, (ModuleInitData[]));
-        for (uint256 i = 0; i < modules.length; i++) {
-            ModuleInitData memory module = modules[i];
-
-            _installModule(module.module, module.initData);
-
-            if (module.isDefault) {
-                _setDefaultModuleWithoutValidation(module.moduleType, module.module);
-            }
-        }
-    }
-
     /*//////////////////////////////////////////////////////////////
                            INTERNAL FUNCTIONS
     //////////////////////////////////////////////////////////////*/
@@ -56,7 +36,7 @@ abstract contract ModuleManager is IFuzionPaymaster, PaymasterBase, Initializabl
         _validateOnModuleInstall(moduleType, _module);
 
         // Install the module
-        _installModule(_module, _initData);
+        _installModuleWithoutValidation(_module, _initData);
 
         emit ModuleInstalled(moduleType, _module);
     }
@@ -97,7 +77,7 @@ abstract contract ModuleManager is IFuzionPaymaster, PaymasterBase, Initializabl
 
         // Install the module
         // it goes after setting the default module, cause we call the external function to install with the module
-        _installModule(_module, _initData);
+        _installModuleWithoutValidation(_module, _initData);
 
         emit ModuleInstalled(moduleType, _module);
     }
@@ -152,6 +132,16 @@ abstract contract ModuleManager is IFuzionPaymaster, PaymasterBase, Initializabl
         emit ModuleUninstalled(moduleType, _module);
     }
 
+    function _setDefaultModuleWithoutValidation(ModuleType moduleType, address _module) internal {
+        if (moduleType == ModuleType.Validator) {
+            _setDefaultValidator(_module);
+        } else if (moduleType == ModuleType.Payport) {
+            _setDefaultPayport(_module);
+        } else if (moduleType == ModuleType.Hook) {
+            _setDefaultHook(_module);
+        }
+    }
+
     /*//////////////////////////////////////////////////////////////
                             PRIVATE FUNCTIONS
     //////////////////////////////////////////////////////////////*/
@@ -179,19 +169,9 @@ abstract contract ModuleManager is IFuzionPaymaster, PaymasterBase, Initializabl
         }
     }
 
-    function _installModule(address _module, bytes memory _initData) private {
+    function _installModuleWithoutValidation(address _module, bytes memory _initData) private {
         _installedModules[_module] = true;
         IModule(_module).onInstall(_initData);
-    }
-
-    function _setDefaultModuleWithoutValidation(ModuleType moduleType, address _module) private {
-        if (moduleType == ModuleType.Validator) {
-            _setDefaultValidator(_module);
-        } else if (moduleType == ModuleType.Payport) {
-            _setDefaultPayport(_module);
-        } else if (moduleType == ModuleType.Hook) {
-            _setDefaultHook(_module);
-        }
     }
 
     function _setDefaultValidator(address _module) private {

@@ -1,16 +1,58 @@
 const FUZION_ROUTER_ADDRESS =
-  "0x40C0222E7364F3f3ED57A941aAF874E5855be01d" as `0x${string}`;
+  "0x74608B43B5533F52d518f4B6d19933dEe757f67e" as `0x${string}`;
 const FUZION_ROUTER_ABI = [
   {
     inputs: [
+      {
+        internalType: "address",
+        name: "_paymasterFactoryAddress",
+        type: "address",
+      },
       {
         internalType: "address",
         name: "_owner",
         type: "address",
       },
     ],
-    stateMutability: "payable",
+    stateMutability: "nonpayable",
     type: "constructor",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "module",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "rater",
+        type: "address",
+      },
+    ],
+    name: "FuzionRouter__ModuleAlreadyRated",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "FuzionRouter__ModuleAlreadyRegistered",
+    type: "error",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "addr",
+        type: "address",
+      },
+    ],
+    name: "FuzionRouter__ModuleNotRegistered",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "FuzionRouter__NotExpectedPaymaster",
+    type: "error",
   },
   {
     inputs: [],
@@ -50,6 +92,68 @@ const FUZION_ROUTER_ABI = [
       {
         indexed: true,
         internalType: "address",
+        name: "module",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "rater",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "enum IFuzionRouter.Rating",
+        name: "rating",
+        type: "uint8",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "totalRating",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "totalCount",
+        type: "uint256",
+      },
+    ],
+    name: "ModuleRatingUpdated",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "module",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "enum ModuleType",
+        name: "moduleType",
+        type: "uint8",
+      },
+      {
+        indexed: false,
+        internalType: "string",
+        name: "name",
+        type: "string",
+      },
+    ],
+    name: "ModuleRegistered",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
         name: "previousOwner",
         type: "address",
       },
@@ -66,12 +170,6 @@ const FUZION_ROUTER_ABI = [
   {
     anonymous: false,
     inputs: [
-      {
-        indexed: true,
-        internalType: "contract IPaymasterFactory",
-        name: "paymasterFactory",
-        type: "address",
-      },
       {
         indexed: true,
         internalType: "address",
@@ -95,28 +193,20 @@ const FUZION_ROUTER_ABI = [
     type: "event",
   },
   {
-    anonymous: false,
     inputs: [
       {
-        indexed: true,
-        internalType: "contract IPaymasterFactory",
-        name: "paymasterFactory",
-        type: "address",
-      },
-    ],
-    name: "PaymasterFactorySet",
-    type: "event",
-  },
-  {
-    inputs: [
-      {
-        internalType: "contract IPaymasterFactory",
-        name: "_paymasterFactory",
-        type: "address",
+        internalType: "bytes32",
+        name: "_salt",
+        type: "bytes32",
       },
       {
         internalType: "address",
         name: "_owner",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "_feeTo",
         type: "address",
       },
       {
@@ -137,6 +227,74 @@ const FUZION_ROUTER_ABI = [
   },
   {
     inputs: [],
+    name: "factory",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_module",
+        type: "address",
+      },
+    ],
+    name: "getModuleRatingData",
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "uint128",
+            name: "accumulativeRating",
+            type: "uint128",
+          },
+          {
+            internalType: "uint128",
+            name: "accumulativeRatingCount",
+            type: "uint128",
+          },
+        ],
+        internalType: "struct IFuzionRouter.RatingData",
+        name: "",
+        type: "tuple",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_rater",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "_module",
+        type: "address",
+      },
+    ],
+    name: "hasRatedModule",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
     name: "owner",
     outputs: [
       {
@@ -151,25 +309,17 @@ const FUZION_ROUTER_ABI = [
   {
     inputs: [
       {
-        internalType: "contract IPaymasterFactory",
-        name: "_paymasterFactory",
+        internalType: "address",
+        name: "_module",
         type: "address",
       },
-    ],
-    name: "paymasterFactoryAvailable",
-    outputs: [
       {
-        internalType: "bool",
-        name: "",
-        type: "bool",
+        internalType: "enum IFuzionRouter.Rating",
+        name: "_rating",
+        type: "uint8",
       },
     ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "renounceOwnership",
+    name: "rateModule",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -177,12 +327,19 @@ const FUZION_ROUTER_ABI = [
   {
     inputs: [
       {
-        internalType: "contract IPaymasterFactory",
-        name: "_paymasterFactory",
+        internalType: "address",
+        name: "_module",
         type: "address",
       },
     ],
-    name: "setPaymasterFactory",
+    name: "registerModule",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "renounceOwnership",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
