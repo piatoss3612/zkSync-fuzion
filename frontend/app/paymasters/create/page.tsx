@@ -4,22 +4,18 @@ import PaymasterCreateForm from "@/components/paymasters/create";
 import SignInRequired from "@/components/utils/auth/SignInRequired";
 import TransactionResult from "@/components/utils/transaction/TransactionResult";
 import { useAuth, useModal } from "@/hooks";
-import {
-  FUZION_ROUTER_ABI,
-  FUZION_ROUTER_ADDRESS,
-  SupportedFactories,
-} from "@/libs/contract";
+import { FUZION_ROUTER_ABI, FUZION_ROUTER_ADDRESS } from "@/libs/contract";
 import { Box, Container, useToast } from "@chakra-ui/react";
 import { useFormik } from "formik";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect } from "react";
-import { encodeFunctionData, parseEther } from "viem";
+import { encodeFunctionData, keccak256, parseEther, toHex } from "viem";
 import { useSendTransaction, useWaitForTransactionReceipt } from "wagmi";
 
 const Page = () => {
   const toast = useToast();
   const router = useRouter();
-  const { address, isSignedIn } = useAuth();
+  const { isSignedIn } = useAuth();
   const { openModal } = useModal();
   const {
     sendTransactionAsync,
@@ -38,27 +34,31 @@ const Page = () => {
     if (isSuccess) {
       router.push("/paymasters");
     }
-  }, [isSuccess]);
+  }, [isSuccess, router]);
 
   const formik = useFormik<{
     name: string;
-    factory: `0x${string}`;
     owner: `0x${string}`;
+    feeTo: `0x${string}`;
+    seed: string;
     deposit: number;
   }>({
     initialValues: {
       name: "",
-      factory: "0x",
       owner: "0x",
+      feeTo: "0x",
+      seed: "",
       deposit: 0,
     },
     onSubmit: async (values) => {
       // TODO: Add validation
       const ether = parseEther(values.deposit.toString());
+      const salt = keccak256(toHex(values.seed));
+
       const data = encodeFunctionData({
         abi: FUZION_ROUTER_ABI,
         functionName: "createPaymaster",
-        args: [values.factory, values.owner, values.name, "0x0"],
+        args: [salt, values.owner, values.feeTo, values.name, "0x"],
       });
 
       await sendTransactionAsync({
@@ -81,7 +81,7 @@ const Page = () => {
         closeModalCallback
       );
     }
-  }, [receipt, hash, isSuccess]);
+  }, [receipt, hash, isSuccess, openModal, closeModalCallback]);
 
   useEffect(() => {
     if (isError) {
@@ -93,7 +93,7 @@ const Page = () => {
         isClosable: true,
       });
     }
-  }, [isError, error]);
+  }, [isError, error, toast]);
 
   if (!isSignedIn) {
     return <SignInRequired message="Please sign in to create a paymaster" />;
@@ -111,7 +111,6 @@ const Page = () => {
         <Box bg="white" p={6} rounded="md">
           <PaymasterCreateForm
             formik={formik}
-            supportedFactories={SupportedFactories}
             isLoading={isWritePending || isLoading}
           />
         </Box>
