@@ -24,7 +24,7 @@ contract ERC721Gate is IValidator {
         emit Uninstalled(caller);
     }
 
-    function validateTransaction(bytes32 _txHash, bytes32 _suggestedSignedHash, Transaction calldata _transaction)
+    function validateTransaction(bytes32, bytes32, Transaction calldata _transaction)
         external
         view
         returns (bool isValid)

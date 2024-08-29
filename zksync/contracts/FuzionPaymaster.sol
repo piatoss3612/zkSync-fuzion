@@ -17,7 +17,13 @@ import "@matterlabs/zksync-contracts/l2/system-contracts/Constants.sol";
 // Fuzion
 import {IFuzionPaymaster} from "./interfaces/IFuzionPaymaster.sol";
 import {
-    ModuleType, PreparePaymentData, PrepareRefundData, IValidator, IPayport, IHook
+    ModuleType,
+    PreparePaymentData,
+    PrepareRefundData,
+    ModuleInitData,
+    IValidator,
+    IPayport,
+    IHook
 } from "./interfaces/IModule.sol";
 import {ModuleManager} from "./core/ModuleManager.sol";
 import {FeeManager} from "./core/FeeManager.sol";
@@ -25,9 +31,10 @@ import {FeeManager} from "./core/FeeManager.sol";
 // OpenZeppelin
 import {IERC20, SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {IERC165} from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
+import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
-contract FuzionPaymaster is ModuleManager, FeeManager, Ownable {
+contract FuzionPaymaster is ModuleManager, FeeManager, Initializable, Ownable {
     /*//////////////////////////////////////////////////////////////
                             MODIFIERS
     //////////////////////////////////////////////////////////////*/
@@ -46,6 +53,27 @@ contract FuzionPaymaster is ModuleManager, FeeManager, Ownable {
     /*//////////////////////////////////////////////////////////////
                              FUNCTIONS
     //////////////////////////////////////////////////////////////*/
+    function initialize(bytes calldata _initData) external override initializer {
+        if (_initData.length == 0) {
+            // No default modules to install
+            return;
+        }
+
+        // Initialize the default modules
+        ModuleInitData[] memory modules = abi.decode(_initData, (ModuleInitData[]));
+        for (uint256 i = 0; i < modules.length; i++) {
+            ModuleInitData memory initData = modules[i];
+
+            // validate and install the module
+            _installModule(initData.moduleType, initData.module, initData.initData);
+
+            if (initData.isDefault) {
+                // set the default module (no validation required as it was already validated during installation)
+                _setDefaultModuleWithoutValidation(initData.moduleType, initData.module);
+            }
+        }
+    }
+
     function validateAndPayForPaymasterTransaction(
         bytes32 _txHash,
         bytes32 _suggestedSignedHash,
