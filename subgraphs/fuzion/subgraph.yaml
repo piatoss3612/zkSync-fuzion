@@ -5,28 +5,31 @@ schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum
-    name: fuzion_router
+    name: FuzionRouter
     network: zksync-era-sepolia
     source:
-      address: "0x40C0222E7364F3f3ED57A941aAF874E5855be01d"
-      abi: fuzion_router
-      startBlock: 3562036
+      address: "0x74608B43B5533F52d518f4B6d19933dEe757f67e"
+      abi: FuzionRouter
+      startBlock: 3700964
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
+        - ModuleRatingUpdated
+        - ModuleRegistered
         - OwnershipTransferred
         - PaymasterCreated
-        - PaymasterFactorySet
       abis:
-        - name: fuzion_router
-          file: ./abis/fuzion_router.json
+        - name: FuzionRouter
+          file: ./abis/FuzionRouter.json
       eventHandlers:
+        - event: ModuleRatingUpdated(indexed address,indexed address,uint8,uint256,uint256)
+          handler: handleModuleRatingUpdated
+        - event: ModuleRegistered(indexed address,uint8,string)
+          handler: handleModuleRegistered
         - event: OwnershipTransferred(indexed address,indexed address)
           handler: handleOwnershipTransferred
-        - event: PaymasterCreated(indexed address,indexed address,indexed address,string)
+        - event: PaymasterCreated(indexed address,indexed address,string)
           handler: handlePaymasterCreated
-        - event: PaymasterFactorySet(indexed address)
-          handler: handlePaymasterFactorySet
       file: ./src/fuzion-router.ts
