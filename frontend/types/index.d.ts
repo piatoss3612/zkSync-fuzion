@@ -8,7 +8,6 @@ interface PaymasterCreated {
   name: string;
   owner: `0x${string}`;
   paymaster: `0x${string}`;
-  paymasterFactory: `0x${string}`;
   blockTimestamp: number;
 }
 

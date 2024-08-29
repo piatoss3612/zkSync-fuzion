@@ -60,7 +60,6 @@ const GET = async (req: NextRequest) => {
         name
         owner
         paymaster
-        paymasterFactory
         blockTimestamp
       }
     }
