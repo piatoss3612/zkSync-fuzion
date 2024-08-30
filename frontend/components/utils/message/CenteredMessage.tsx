@@ -1,11 +1,11 @@
 import { Box, Container, Heading } from "@chakra-ui/react";
 import React from "react";
 
-interface SignInRequiredProps {
+interface CenteredMessageProps {
   message: string;
 }
 
-const SignInRequired = ({ message }: SignInRequiredProps) => {
+const CenteredMessage = ({ message }: CenteredMessageProps) => {
   return (
     <Box display="flex" alignItems="center" justifyContent="center" flex="1">
       <Container px="1.6rem" my={4}>
@@ -17,4 +17,4 @@ const SignInRequired = ({ message }: SignInRequiredProps) => {
   );
 };
 
-export default SignInRequired;
+export default CenteredMessage;

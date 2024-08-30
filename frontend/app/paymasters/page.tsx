@@ -18,8 +18,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import axios from "axios";
 import PaymasterList from "@/components/paymasters/list";
-import SignInRequired from "@/components/utils/auth/SignInRequired";
 import SearchBar from "@/components/common/searchbar";
+import CenteredMessage from "@/components/utils/message/CenteredMessage";
 
 // TODO: Implement search functionality, improve infinite scroll
 const Page = () => {
@@ -32,7 +32,7 @@ const Page = () => {
   const queryPaymasters = useCallback(
     async ({ pageParam }: { pageParam: any }): Promise<PaymasterCreateds> => {
       const response = await axios.get<PaymasterCreateds>(
-        "api/paymasters/list",
+        "/api/paymasters/list",
         {
           params: {
             page: pageParam,
@@ -122,7 +122,7 @@ const Page = () => {
 
   // show sign in required message if user is not signed in
   if (!isSignedIn) {
-    return <SignInRequired message="Please sign in to manage paymasters" />;
+    return <CenteredMessage message="Please sign in to manage paymasters" />;
   }
 
   return (

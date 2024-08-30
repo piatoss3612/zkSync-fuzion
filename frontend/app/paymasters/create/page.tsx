@@ -1,7 +1,7 @@
 "use client";
 
+import CenteredMessage from "@/components/utils/message/CenteredMessage";
 import PaymasterCreateForm from "@/components/paymasters/create";
-import SignInRequired from "@/components/utils/auth/SignInRequired";
 import TransactionResult from "@/components/utils/transaction/TransactionResult";
 import { useAuth, useModal } from "@/hooks";
 import { FUZION_ROUTER_ABI, FUZION_ROUTER_ADDRESS } from "@/libs/contract";
@@ -96,7 +96,7 @@ const Page = () => {
   }, [isError, error, toast]);
 
   if (!isSignedIn) {
-    return <SignInRequired message="Please sign in to create a paymaster" />;
+    return <CenteredMessage message="Please sign in to create a paymaster" />;
   }
 
   return (

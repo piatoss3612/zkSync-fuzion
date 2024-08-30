@@ -8,7 +8,7 @@ const SUBGRAPH_URL =
   "https://api.studio.thegraph.com/query/68882/fuzion/version/latest";
 
 const GET = async (
-  req: NextRequest,
+  req: Request,
   { params }: { params: { address: string } }
 ) => {
   try {
