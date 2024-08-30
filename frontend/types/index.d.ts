@@ -15,4 +15,28 @@ interface PaymasterCreateds {
   paymasterCreateds: PaymasterCreated[];
 }
 
-export { NavItem, PaymasterCreated, PaymasterCreateds };
+enum ModuleType {
+  Validator = 0,
+  Payport = 1,
+  Hook = 2,
+}
+
+interface ModuleRegistered {
+  id: string;
+  module: `0x${string}`;
+  moduleType: ModuleType;
+  blockTimestamp: number;
+}
+
+interface ModuleRegistereds {
+  moduleRegistereds: ModuleRegistered[];
+}
+
+export {
+  NavItem,
+  PaymasterCreated,
+  PaymasterCreateds,
+  ModuleType,
+  ModuleRegistered,
+  ModuleRegistereds,
+};

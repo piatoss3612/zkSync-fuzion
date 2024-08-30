@@ -30,6 +30,10 @@ const Navbar = () => {
       name: "Paymasters",
       path: "/paymasters",
     },
+    {
+      name: "Modules",
+      path: "/modules",
+    },
   ];
 
   return (

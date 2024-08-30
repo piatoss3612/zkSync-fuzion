@@ -19,7 +19,8 @@ const Navigation = ({
       width={{ base: "full", lg: "auto" }}
       alignItems="center"
       flexGrow={1}
-      ml={8}
+      ml={12}
+      gap={8}
     >
       {navItems.map((item) => (
         <NavigationItem
@@ -27,7 +28,6 @@ const Navigation = ({
           item={item}
           activePath={activePath}
           handleNavigation={handleNavigation}
-          mx={2}
         />
       ))}
     </Box>
