@@ -1,44 +1,40 @@
 "use client";
 
-import {
-  Container,
-  Button,
-  Icon,
-  HStack,
-  VStack,
-  useToast,
-  Center,
-  Spinner,
-} from "@chakra-ui/react";
-import { useRouter } from "next/navigation";
-import { BsPlusLg } from "react-icons/bs";
-import { PaymasterCreated, PaymasterCreateds } from "@/types";
+import SearchBar from "@/components/common/searchbar";
+import ModuleList from "@/components/modules/list";
+import CenteredMessage from "@/components/utils/message/CenteredMessage";
 import { useAuth } from "@/hooks";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { ModuleRegistered, ModuleRegistereds } from "@/types";
+import {
+  Button,
+  Center,
+  Container,
+  HStack,
+  Icon,
+  Spinner,
+  useToast,
+  VStack,
+} from "@chakra-ui/react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import axios from "axios";
-import PaymasterList from "@/components/paymasters/list";
-import SearchBar from "@/components/common/searchbar";
-import CenteredMessage from "@/components/utils/message/CenteredMessage";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { BsPlusLg } from "react-icons/bs";
 
-// TODO: Implement search functionality, improve infinite scroll
 const Page = () => {
   const router = useRouter();
   const toast = useToast();
   const { address, isSignedIn } = useAuth();
   const loadMoreRef = useRef(null);
-  const [paymasters, setPaymasters] = useState<PaymasterCreated[]>([]);
+  const [modules, setModules] = useState<ModuleRegistered[]>([]);
 
-  const queryPaymasters = useCallback(
-    async ({ pageParam }: { pageParam: any }): Promise<PaymasterCreateds> => {
-      const response = await axios.get<PaymasterCreateds>(
-        "/api/paymasters/list",
-        {
-          params: {
-            page: pageParam,
-          },
-        }
-      );
+  const queryModules = useCallback(
+    async ({ pageParam }: { pageParam: any }): Promise<ModuleRegistereds> => {
+      const response = await axios.get<ModuleRegistereds>("/api/modules/list", {
+        params: {
+          page: pageParam,
+        },
+      });
 
       if (response.status !== 200) {
         const message = (response.data as any).message || "An error occurred";
@@ -50,15 +46,14 @@ const Page = () => {
     []
   );
 
-  // fetch paymasters from server and cache them
   const { data, fetchNextPage, hasNextPage, isLoading, isError, error } =
-    useInfiniteQuery<PaymasterCreateds, Error>({
-      queryKey: ["paymasters", address],
-      queryFn: queryPaymasters,
+    useInfiniteQuery<ModuleRegistereds, Error>({
+      queryKey: ["modules"],
+      queryFn: queryModules,
       initialPageParam: 1,
       getNextPageParam: (lastPage, allPages) => {
         // stop fetching when there are no more paymasters
-        if (lastPage.paymasterCreateds.length === 0) {
+        if (lastPage.moduleRegistereds.length === 0) {
           return undefined;
         }
 
@@ -68,7 +63,6 @@ const Page = () => {
       refetchOnMount: true,
     });
 
-  // fetch next page when user scrolls to the bottom
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -90,22 +84,19 @@ const Page = () => {
     };
   }, []);
 
-  // populate paymasters from data
   useEffect(() => {
     if (data) {
-      // remove duplicates
-      setPaymasters((prev) => {
+      setModules((prev) => {
         return data.pages.reduce((acc, page) => {
-          const paymasters = page.paymasterCreateds.filter(
-            (paymaster) => !acc.some((p) => p.id === paymaster.id)
+          const modules = page.moduleRegistereds.filter(
+            (module) => !acc.some((m) => m.id === module.id)
           );
-          return [...acc, ...paymasters];
+          return [...acc, ...modules];
         }, prev);
       });
     }
   }, [data]);
 
-  // show error toast when fetching paymasters fails
   useEffect(() => {
     if (isError) {
       const message =
@@ -120,9 +111,8 @@ const Page = () => {
     }
   }, [isError]);
 
-  // show sign in required message if user is not signed in
   if (!isSignedIn) {
-    return <CenteredMessage message="Please sign in to view paymasters" />;
+    return <CenteredMessage message="Please sign in to view modules" />;
   }
 
   return (
@@ -145,14 +135,13 @@ const Page = () => {
             leftIcon={<Icon as={BsPlusLg} />}
             colorScheme="blue"
             _hover={{ bg: "blue.600" }}
-            onClick={() => router.push("/paymasters/create")}
+            onClick={() => router.push("/modules/register")}
           >
-            New Paymaster
+            Register Module
           </Button>
         </HStack>
-        <PaymasterList paymasters={paymasters} isLoading={isLoading} />
+        <ModuleList modules={modules} isLoading={isLoading} />
         <Center ref={loadMoreRef}>
-          {/* Show spinner when loading more paymasters (not when loading the first page) */}
           {data?.pages.length && isLoading && <Spinner size="lg" />}
         </Center>
       </VStack>

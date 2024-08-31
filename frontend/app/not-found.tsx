@@ -1,4 +1,4 @@
-import { Center, Container, Heading } from "@chakra-ui/react";
+import { Container, Heading } from "@chakra-ui/react";
 
 function NotFoundPage() {
   return (

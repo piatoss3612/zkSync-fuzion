@@ -7,7 +7,10 @@ import { PaymasterCreateds } from "@/types";
 const SUBGRAPH_URL =
   "https://api.studio.thegraph.com/query/68882/fuzion/version/latest";
 
-const GET = async (req: NextRequest) => {
+const GET = async (
+  req: Request,
+  { params }: { params: { address: string } }
+) => {
   try {
     const session = await getServerSession(authOptions);
 
@@ -31,30 +34,19 @@ const GET = async (req: NextRequest) => {
       );
     }
 
-    // Get the url parameter
-    const url = new URL(req.url);
-    const page = url.searchParams.get("page") || "1";
-    const limit = url.searchParams.get("limit") || "10";
-
-    // Prepare the query
-    let pageNum = parseInt(page) - 1;
-    if (pageNum < 0) {
-      pageNum = 0;
-    }
-
-    let limitNum = parseInt(limit);
-    if (limitNum < 1) {
-      limitNum = 10;
+    if (!params.address) {
+      return NextResponse.json(
+        {
+          message: "Paymaster address not found.",
+        },
+        { status: 400 }
+      );
     }
 
     const query = gql`
     {
       paymasterCreateds(
-        first: ${limitNum}
-        where: {owner: "${userAddress}"}
-        orderBy: blockTimestamp
-        orderDirection: desc
-        skip: ${pageNum * limitNum}
+        where: {owner: "${userAddress}", paymaster: "${params.address}"}
       ) {
         id
         name
@@ -66,8 +58,16 @@ const GET = async (req: NextRequest) => {
   `;
 
     const response = await request<PaymasterCreateds>(SUBGRAPH_URL, query);
+    if (response.paymasterCreateds.length === 0) {
+      return NextResponse.json(
+        {
+          message: "Paymaster not found.",
+        },
+        { status: 404 }
+      );
+    }
 
-    return NextResponse.json(response, { status: 200 });
+    return NextResponse.json(response.paymasterCreateds[0], { status: 200 });
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Internal Server Error";

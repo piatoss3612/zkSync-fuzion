@@ -1,5 +1,5 @@
 const FUZION_ROUTER_ADDRESS =
-  "0x74608B43B5533F52d518f4B6d19933dEe757f67e" as `0x${string}`;
+  "0xEDc5E43Be94160cA59fF07226c031492Fbb6d647" as `0x${string}`;
 const FUZION_ROUTER_ABI = [
   {
     inputs: [
@@ -209,6 +209,35 @@ const FUZION_ROUTER_ABI = [
         name: "_feeTo",
         type: "address",
       },
+    ],
+    name: "calculatePaymasterAddress",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "_salt",
+        type: "bytes32",
+      },
+      {
+        internalType: "address",
+        name: "_owner",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "_feeTo",
+        type: "address",
+      },
       {
         internalType: "string",
         name: "_alias",
@@ -283,6 +312,25 @@ const FUZION_ROUTER_ABI = [
       },
     ],
     name: "hasRatedModule",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_module",
+        type: "address",
+      },
+    ],
+    name: "isModuleRegistered",
     outputs: [
       {
         internalType: "bool",

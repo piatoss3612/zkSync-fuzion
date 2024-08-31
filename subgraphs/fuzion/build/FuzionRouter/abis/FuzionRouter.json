@@ -206,6 +206,35 @@
         "internalType": "address",
         "name": "_feeTo",
         "type": "address"
+      }
+    ],
+    "name": "calculatePaymasterAddress",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "_salt",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "address",
+        "name": "_owner",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_feeTo",
+        "type": "address"
       },
       {
         "internalType": "string",
@@ -281,6 +310,25 @@
       }
     ],
     "name": "hasRatedModule",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_module",
+        "type": "address"
+      }
+    ],
+    "name": "isModuleRegistered",
     "outputs": [
       {
         "internalType": "bool",
