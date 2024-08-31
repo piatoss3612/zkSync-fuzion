@@ -40,7 +40,7 @@ contract FuzionRouter is IFuzionRouter, Ownable {
     }
 
     function registerModule(address _module) external override {
-        if (_isRegisteredModule(_module)) {
+        if (_isModuleRegistered(_module)) {
             revert FuzionRouter__ModuleAlreadyRegistered();
         }
 
@@ -51,8 +51,12 @@ contract FuzionRouter is IFuzionRouter, Ownable {
         emit ModuleRegistered(address(_module), metadata.moduleType, metadata.name);
     }
 
+    function isModuleRegistered(address _module) external view returns (bool) {
+        return _isModuleRegistered(_module);
+    }
+
     function rateModule(address _module, Rating _rating) external {
-        if (!_isRegisteredModule(_module)) {
+        if (!_isModuleRegistered(_module)) {
             revert FuzionRouter__ModuleNotRegistered(_module);
         }
 
@@ -76,7 +80,7 @@ contract FuzionRouter is IFuzionRouter, Ownable {
         return _moduleRatings[_module];
     }
 
-    function _isRegisteredModule(address _module) internal view returns (bool) {
+    function _isModuleRegistered(address _module) internal view returns (bool) {
         return _modules[_module];
     }
 

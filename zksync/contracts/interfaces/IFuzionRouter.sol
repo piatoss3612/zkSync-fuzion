@@ -59,6 +59,10 @@ interface IFuzionRouter {
     /// @param _module The address of the module to register
     function registerModule(address _module) external;
 
+    /// @dev Returns whether the module is registered
+    /// @param _module The address of the module
+    function isModuleRegistered(address _module) external view returns (bool);
+
     // ============ Module Rating ============
 
     /// @dev Updates the rating of the module
