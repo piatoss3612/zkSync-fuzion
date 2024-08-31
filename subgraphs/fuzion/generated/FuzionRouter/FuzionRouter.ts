@@ -207,6 +207,29 @@ export class FuzionRouter extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBoolean());
   }
 
+  isModuleRegistered(_module: Address): boolean {
+    let result = super.call(
+      "isModuleRegistered",
+      "isModuleRegistered(address):(bool)",
+      [ethereum.Value.fromAddress(_module)],
+    );
+
+    return result[0].toBoolean();
+  }
+
+  try_isModuleRegistered(_module: Address): ethereum.CallResult<boolean> {
+    let result = super.tryCall(
+      "isModuleRegistered",
+      "isModuleRegistered(address):(bool)",
+      [ethereum.Value.fromAddress(_module)],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBoolean());
+  }
+
   owner(): Address {
     let result = super.call("owner", "owner():(address)", []);
 
