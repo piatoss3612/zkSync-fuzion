@@ -52,7 +52,7 @@ const ModuleRegisterForm = ({
   return (
     <form onSubmit={formik.handleSubmit}>
       <VStack spacing={6} my={4} align="stretch">
-        <Heading size="lg" textAlign="center">
+        <Heading size="lg" textAlign="center" fontFamily={""}>
           Register Module
         </Heading>
         <FormControl>
@@ -75,7 +75,7 @@ const ModuleRegisterForm = ({
               bg={bgColor}
               borderColor={borderColor}
             >
-              <Heading size="md" mb={4}>
+              <Heading size="md" mb={4} fontFamily={""}>
                 Module Metadata
               </Heading>
               <Grid
