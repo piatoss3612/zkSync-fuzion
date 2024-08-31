@@ -160,7 +160,7 @@ const PaymasterCreateForm = ({
             isLoading={isLoading}
             mt={4}
           >
-            Create Paymaster
+            Create
           </Button>
         </VStack>
       </form>
