@@ -39,6 +39,11 @@ interface IFuzionRouter {
     /// @dev Returns the factory address
     /// @return The factory address
     function factory() external view returns (address);
+    /// @dev Calculates the paymaster address with the given parameters
+    /// @param _salt The salt for the paymaster (create2 address)
+    /// @param _owner The owner of the paymaster
+    /// @param _feeTo The fee to address of the paymaster
+    function calculatePaymasterAddress(bytes32 _salt, address _owner, address _feeTo) external view returns (address);
     /// @dev Creates a paymaster with the given parameters
     /// @param _salt The salt for the paymaster (create2 address)
     /// @param _owner The owner of the paymaster

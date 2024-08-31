@@ -22,6 +22,15 @@ contract FuzionRouter is IFuzionRouter, Ownable {
         return address(_paymasterFactory);
     }
 
+    function calculatePaymasterAddress(bytes32 _salt, address _owner, address _feeTo)
+        external
+        view
+        override
+        returns (address)
+    {
+        return _paymasterFactory.getPaymasterAddress(_salt, _owner, _feeTo);
+    }
+
     function createPaymaster(
         bytes32 _salt,
         address _owner,
