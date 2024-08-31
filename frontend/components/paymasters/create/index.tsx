@@ -11,6 +11,10 @@ import {
   FormHelperText,
   Box,
   useColorModeValue,
+  Flex,
+  Text,
+  Tooltip,
+  useToast,
 } from "@chakra-ui/react";
 import { FormikProps } from "formik";
 import {
@@ -18,6 +22,7 @@ import {
   FaUser,
   FaMoneyBillWave,
   FaSeedling,
+  FaCheckCircle,
 } from "react-icons/fa";
 
 interface PaymasterCreateFormProps {
@@ -37,8 +42,11 @@ const PaymasterCreateForm = ({
   isLoading,
   expectedAddress,
 }: PaymasterCreateFormProps) => {
+  const toast = useToast();
   const { address } = useAuth();
   const helperTextColor = useColorModeValue("gray.600", "gray.400");
+  const expectedAddressBg = useColorModeValue("blue.50", "blue.900");
+  const expectedAddressBorder = useColorModeValue("blue.200", "blue.700");
 
   return (
     <Box borderRadius="lg" p={4}>
@@ -156,18 +164,38 @@ const PaymasterCreateForm = ({
             </FormHelperText>
           </FormControl>
           {expectedAddress && (
-            <FormControl>
-              <FormLabel>Expected Address</FormLabel>
-              <InputGroup>
-                <InputLeftElement pointerEvents="none">
-                  <FaUser color="gray.300" />
-                </InputLeftElement>
-                <Input value={expectedAddress} isReadOnly variant="filled" />
-              </InputGroup>
-              <FormHelperText color={helperTextColor}>
-                Address that will be created
-              </FormHelperText>
-            </FormControl>
+            <Box
+              borderWidth={1}
+              borderRadius="md"
+              p={4}
+              bg={expectedAddressBg}
+              borderColor={expectedAddressBorder}
+            >
+              <Flex alignItems="center" mb={2}>
+                <FaCheckCircle color="green" />
+                <Text fontWeight="bold" ml={2}>
+                  Expected Paymaster Address
+                </Text>
+              </Flex>
+              <Tooltip label="Click to copy" placement="top">
+                <Text
+                  fontSize="md"
+                  fontFamily=""
+                  cursor="pointer"
+                  onClick={() => {
+                    navigator.clipboard.writeText(expectedAddress);
+                    toast({
+                      title: "Address copied",
+                      status: "success",
+                      duration: 3000,
+                      isClosable: true,
+                    });
+                  }}
+                >
+                  {expectedAddress}
+                </Text>
+              </Tooltip>
+            </Box>
           )}
           <Button
             type="submit"
