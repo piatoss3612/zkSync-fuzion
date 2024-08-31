@@ -1,5 +1,5 @@
 const FUZION_ROUTER_ADDRESS =
-  "0x74608B43B5533F52d518f4B6d19933dEe757f67e" as `0x${string}`;
+  "0x691b0BA0e5Ea8633821c10BEA834E82225a54A14" as `0x${string}`;
 const FUZION_ROUTER_ABI = [
   {
     inputs: [
@@ -283,6 +283,25 @@ const FUZION_ROUTER_ABI = [
       },
     ],
     name: "hasRatedModule",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_module",
+        type: "address",
+      },
+    ],
+    name: "isModuleRegistered",
     outputs: [
       {
         internalType: "bool",

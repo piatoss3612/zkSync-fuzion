@@ -122,7 +122,7 @@ const Page = () => {
 
   // show sign in required message if user is not signed in
   if (!isSignedIn) {
-    return <CenteredMessage message="Please sign in to manage paymasters" />;
+    return <CenteredMessage message="Please sign in to view paymasters" />;
   }
 
   return (

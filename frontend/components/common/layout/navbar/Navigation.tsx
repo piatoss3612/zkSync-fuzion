@@ -20,7 +20,7 @@ const Navigation = ({
       alignItems="center"
       flexGrow={1}
       ml={12}
-      gap={8}
+      gap={10}
     >
       {navItems.map((item) => (
         <NavigationItem

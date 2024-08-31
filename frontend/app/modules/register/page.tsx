@@ -1,16 +1,26 @@
 "use client";
 
 import CenteredMessage from "@/components/utils/message/CenteredMessage";
-import PaymasterCreateForm from "@/components/paymasters/create";
 import TransactionResult from "@/components/utils/transaction/TransactionResult";
 import { useAuth, useModal } from "@/hooks";
-import { FUZION_ROUTER_ABI, FUZION_ROUTER_ADDRESS } from "@/libs/contract";
+import {
+  FUZION_ROUTER_ABI,
+  FUZION_ROUTER_ADDRESS,
+  IMODULE_ABI,
+  IMODULE_INTERFACE_ID,
+} from "@/libs/contract";
 import { Box, Container, useToast } from "@chakra-ui/react";
 import { useFormik } from "formik";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect } from "react";
-import { encodeFunctionData, keccak256, parseEther, toHex } from "viem";
-import { useSendTransaction, useWaitForTransactionReceipt } from "wagmi";
+import { encodeFunctionData } from "viem";
+import {
+  useReadContract,
+  useSendTransaction,
+  useWaitForTransactionReceipt,
+} from "wagmi";
+import ModuleRegisterForm from "@/components/modules/create";
+import { useQuery } from "@tanstack/react-query";
 
 const Page = () => {
   const toast = useToast();
@@ -32,40 +42,59 @@ const Page = () => {
 
   const closeModalCallback = useCallback(() => {
     if (isSuccess) {
-      router.push("/paymasters");
+      router.push("/modules");
     }
   }, [isSuccess, router]);
 
   const formik = useFormik<{
-    name: string;
-    owner: `0x${string}`;
-    feeTo: `0x${string}`;
-    seed: string;
-    deposit: number;
+    address: `0x${string}`;
   }>({
     initialValues: {
-      name: "",
-      owner: "0x",
-      feeTo: "0x",
-      seed: "",
-      deposit: 0,
+      address: "0x",
     },
     onSubmit: async (values) => {
       // TODO: Add validation
-      const ether = parseEther(values.deposit.toString());
-      const salt = keccak256(toHex(values.seed));
-
       const data = encodeFunctionData({
         abi: FUZION_ROUTER_ABI,
-        functionName: "createPaymaster",
-        args: [salt, values.owner, values.feeTo, values.name, "0x"],
+        functionName: "registerModule",
+        args: [values.address],
       });
-
       await sendTransactionAsync({
         to: FUZION_ROUTER_ADDRESS,
         data,
-        value: ether,
       });
+    },
+  });
+
+  const { data: isSupportingIModuleInterface } = useReadContract({
+    abi: IMODULE_ABI,
+    address: formik.values.address,
+    functionName: "supportsInterface",
+    args: [IMODULE_INTERFACE_ID],
+    query: {
+      enabled: formik.values.address !== "0x",
+    },
+  });
+
+  const { data: isModuleRegistered } = useReadContract({
+    abi: FUZION_ROUTER_ABI,
+    address: FUZION_ROUTER_ADDRESS,
+    functionName: "isModuleRegistered",
+    args: [formik.values.address],
+    query: {
+      enabled: formik.values.address !== "0x" && isSupportingIModuleInterface,
+    },
+  });
+
+  const { data: moduleMetadata } = useReadContract({
+    abi: IMODULE_ABI,
+    address: formik.values.address,
+    functionName: "metadata",
+    query: {
+      enabled:
+        formik.values.address !== "0x" &&
+        isSupportingIModuleInterface &&
+        !isModuleRegistered,
     },
   });
 
@@ -76,7 +105,7 @@ const Page = () => {
         <TransactionResult
           status={isSuccess ? "success" : "error"}
           hash={hash || ""}
-          description={isSuccess ? "Paymaster created" : "Transaction reverted"}
+          description={isSuccess ? "Module registered" : "Transaction reverted"}
         />,
         closeModalCallback
       );
@@ -96,7 +125,7 @@ const Page = () => {
   }, [isError, error, toast]);
 
   if (!isSignedIn) {
-    return <CenteredMessage message="Please sign in to create a paymaster" />;
+    return <CenteredMessage message="Please sign in to register a module" />;
   }
 
   return (
@@ -109,9 +138,18 @@ const Page = () => {
     >
       <Container>
         <Box bg="white" p={6} rounded="md" my={10}>
-          <PaymasterCreateForm
+          <ModuleRegisterForm
             formik={formik}
+            metadata={moduleMetadata}
             isLoading={isWritePending || isLoading}
+            isDisabled={!isSupportingIModuleInterface || !!isModuleRegistered}
+            disabledMessage={
+              isModuleRegistered
+                ? "Module already registered"
+                : !isSupportingIModuleInterface
+                ? "Module does not support IModule interface"
+                : ""
+            }
           />
         </Box>
       </Container>

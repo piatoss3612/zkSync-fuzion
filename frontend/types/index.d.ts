@@ -32,6 +32,14 @@ interface ModuleRegistereds {
   moduleRegistereds: ModuleRegistered[];
 }
 
+interface ModuleMetadata {
+  moduleType: number;
+  name: string;
+  version: string;
+  author: string;
+  installDataSignature: string;
+}
+
 export {
   NavItem,
   PaymasterCreated,
@@ -39,4 +47,5 @@ export {
   ModuleType,
   ModuleRegistered,
   ModuleRegistereds,
+  ModuleMetadata,
 };
