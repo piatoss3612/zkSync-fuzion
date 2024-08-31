@@ -1,6 +1,6 @@
 import TransactionResult from "@/components/utils/transaction/TransactionResult";
 import { useAuth, useModal } from "@/hooks";
-import { IPAYMASTER_ABI } from "@/libs/contract";
+import { abbreviateAddress, IPAYMASTER_ABI } from "@/libs/contract";
 import { PaymasterCreated } from "@/types";
 import {
   Button,
@@ -21,10 +21,14 @@ import {
   Input,
   InputLeftElement,
   InputGroup,
+  Tooltip,
+  Flex,
+  Box,
 } from "@chakra-ui/react";
 import { useFormik } from "formik";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
+import { FaLink } from "react-icons/fa";
 import { FaEthereum } from "react-icons/fa6";
 import { encodeFunctionData, formatUnits, parseEther } from "viem";
 import {
@@ -53,6 +57,8 @@ const PaymasterCard = ({ paymaster }: PaymasterCardProps) => {
   });
 
   const balance = data ? formatUnits(data.value, data.decimals) : "0";
+
+  const abbreviatedAddress = abbreviateAddress(paymaster.paymaster);
 
   const {
     sendTransactionAsync,
@@ -151,23 +157,34 @@ const PaymasterCard = ({ paymaster }: PaymasterCardProps) => {
         <Divider />
         <CardBody>
           <Stack spacing={4}>
-            <Text
-              fontSize="sm"
-              color="gray.600"
-              textAlign="center"
-              _hover={{ cursor: "pointer", textDecoration: "underline" }}
-              onClick={() => {
-                navigator.clipboard.writeText(paymaster.paymaster);
-                toast({
-                  title: "Address copied to clipboard",
-                  status: "success",
-                  duration: 5000,
-                  isClosable: true,
-                });
-              }}
+            <Tooltip
+              label={paymaster.paymaster}
+              aria-label="Full paymaster address"
             >
-              {paymaster.paymaster}
-            </Text>
+              <Flex
+                alignItems="center"
+                justifyContent="center"
+                bg="gray.100"
+                py={1}
+                px={2}
+                borderRadius="md"
+                _hover={{ bg: "gray.200", cursor: "pointer" }}
+                onClick={() => {
+                  navigator.clipboard.writeText(paymaster.paymaster);
+                  toast({
+                    title: "Address copied to clipboard",
+                    status: "success",
+                    duration: 5000,
+                    isClosable: true,
+                  });
+                }}
+              >
+                <Box as={FaLink} size="12px" color="gray.500" mr={2} />
+                <Text fontSize="md" fontWeight="medium" color="gray.700">
+                  {abbreviatedAddress}
+                </Text>
+              </Flex>
+            </Tooltip>
             <Text fontSize="lg" fontWeight="bold" textAlign="center">
               Balance: {balance} ETH
             </Text>

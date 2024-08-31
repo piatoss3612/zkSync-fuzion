@@ -44,7 +44,7 @@ const Page = () => {
     if (isSuccess) {
       router.push("/modules");
     }
-  }, [isSuccess, router]);
+  }, [isSuccess]);
 
   const formik = useFormik<{
     address: `0x${string}`;
@@ -110,7 +110,7 @@ const Page = () => {
         closeModalCallback
       );
     }
-  }, [receipt, hash, isSuccess, openModal, closeModalCallback]);
+  }, [receipt, hash, isSuccess]);
 
   useEffect(() => {
     if (isError) {

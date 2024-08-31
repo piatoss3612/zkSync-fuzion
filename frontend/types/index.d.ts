@@ -25,6 +25,7 @@ interface ModuleRegistered {
   id: string;
   module: `0x${string}`;
   moduleType: ModuleType;
+  name: string;
   blockTimestamp: number;
 }
 

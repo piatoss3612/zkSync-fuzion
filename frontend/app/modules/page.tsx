@@ -1,6 +1,7 @@
 "use client";
 
 import SearchBar from "@/components/common/searchbar";
+import ModuleList from "@/components/modules/list";
 import CenteredMessage from "@/components/utils/message/CenteredMessage";
 import { useAuth } from "@/hooks";
 import { ModuleRegistered, ModuleRegistereds } from "@/types";
@@ -139,7 +140,7 @@ const Page = () => {
             Register Module
           </Button>
         </HStack>
-        {/* <PaymasterList paymasters={paymasters} isLoading={isLoading} /> */}
+        <ModuleList modules={modules} isLoading={isLoading} />
         <Center ref={loadMoreRef}>
           {data?.pages.length && isLoading && <Spinner size="lg" />}
         </Center>

@@ -34,7 +34,7 @@ const Page = () => {
     if (isSuccess) {
       router.push("/paymasters");
     }
-  }, [isSuccess, router]);
+  }, [isSuccess]);
 
   const formik = useFormik<{
     name: string;
@@ -81,7 +81,7 @@ const Page = () => {
         closeModalCallback
       );
     }
-  }, [receipt, hash, isSuccess, openModal, closeModalCallback]);
+  }, [receipt, hash, isSuccess]);
 
   useEffect(() => {
     if (isError) {
