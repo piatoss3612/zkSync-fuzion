@@ -1,6 +1,6 @@
 import TransactionResult from "@/components/utils/transaction/TransactionResult";
 import { useAuth, useModal } from "@/hooks";
-import { abbreviateAddress, IPAYMASTER_ABI } from "@/libs/contract";
+import { abbreviateAddress, FUZION_PAYMASTER_ABI } from "@/libs/contract";
 import { PaymasterCreated } from "@/types";
 import {
   Button,
@@ -24,12 +24,12 @@ import {
   Tooltip,
   Flex,
   Box,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import { useFormik } from "formik";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import { FaLink } from "react-icons/fa";
-import { FaEthereum } from "react-icons/fa6";
+import { FaLink, FaEthereum, FaCalendarAlt } from "react-icons/fa";
 import { encodeFunctionData, formatUnits, parseEther } from "viem";
 import {
   useBalance,
@@ -46,8 +46,15 @@ const PaymasterCard = ({ paymaster }: PaymasterCardProps) => {
   const toast = useToast();
   const { address } = useAuth();
   const { openModal } = useModal();
-  const [isFooterOpen, setIsFooterOpen] = useState(false);
+  const [isDepositOpen, setIsDepositOpen] = useState(false);
+  const [isWithdrawOpen, setIsWithdrawOpen] = useState(false);
   const localDate = new Date(paymaster.blockTimestamp * 1000).toLocaleString();
+
+  const bgColor = useColorModeValue("white", "gray.800");
+  const borderColor = useColorModeValue("gray.200", "gray.600");
+  const headerBgColor = useColorModeValue("blue.500", "blue.600");
+  const textColor = useColorModeValue("gray.700", "gray.200");
+  const mutedTextColor = useColorModeValue("gray.500", "gray.400");
 
   const { data } = useBalance({
     address: paymaster.paymaster,
@@ -73,7 +80,7 @@ const PaymasterCard = ({ paymaster }: PaymasterCardProps) => {
     isSuccess,
   } = useWaitForTransactionReceipt({ hash });
 
-  const formik = useFormik<{
+  const depositFormik = useFormik<{
     deposit: number;
   }>({
     initialValues: {
@@ -88,22 +95,34 @@ const PaymasterCard = ({ paymaster }: PaymasterCardProps) => {
       });
 
       values.deposit = 0;
-      setIsFooterOpen(false);
+      setIsDepositOpen(false);
     },
   });
 
-  const handleWithdraw = async () => {
-    const data = encodeFunctionData({
-      abi: IPAYMASTER_ABI,
-      functionName: "withdraw",
-      args: [address],
-    });
+  const withdrawFormik = useFormik<{
+    withdraw: number;
+  }>({
+    initialValues: {
+      withdraw: 0,
+    },
+    onSubmit: async (values) => {
+      const ether = parseEther(values.withdraw.toString());
 
-    await sendTransactionAsync({
-      to: paymaster.paymaster,
-      data,
-    });
-  };
+      const data = encodeFunctionData({
+        abi: FUZION_PAYMASTER_ABI,
+        functionName: "withdraw",
+        args: [address, ether],
+      });
+
+      await sendTransactionAsync({
+        to: paymaster.paymaster,
+        data,
+      });
+
+      values.withdraw = 0;
+      setIsWithdrawOpen(false);
+    },
+  });
 
   useEffect(() => {
     if (receipt) {
@@ -132,7 +151,6 @@ const PaymasterCard = ({ paymaster }: PaymasterCardProps) => {
       });
     }
   }, [isError, error]);
-
   return (
     <GridItem
       w="full"
@@ -144,19 +162,21 @@ const PaymasterCard = ({ paymaster }: PaymasterCardProps) => {
         maxW="sm"
         w="full"
         borderWidth="1px"
-        borderRadius="lg"
+        borderRadius="xl"
         overflow="hidden"
-        boxShadow="sm"
-        _hover={{ boxShadow: "xl" }}
+        boxShadow="lg"
+        bg={bgColor}
+        borderColor={borderColor}
+        _hover={{ boxShadow: "xl", transform: "translateY(-2px)" }}
+        transition="all 0.3s"
       >
-        <CardHeader bg="blue.500" color="white" py={3}>
-          <Heading size="md" textAlign="center">
+        <CardHeader bg={headerBgColor} color="white" py={4}>
+          <Heading size="lg" textAlign="center" fontWeight="bold">
             {paymaster.name}
           </Heading>
         </CardHeader>
-        <Divider />
         <CardBody>
-          <Stack spacing={4}>
+          <VStack spacing={6} align="stretch">
             <Tooltip
               label={paymaster.paymaster}
               aria-label="Full paymaster address"
@@ -164,45 +184,83 @@ const PaymasterCard = ({ paymaster }: PaymasterCardProps) => {
               <Flex
                 alignItems="center"
                 justifyContent="center"
-                bg="gray.100"
-                py={1}
-                px={2}
-                borderRadius="md"
-                _hover={{ bg: "gray.200", cursor: "pointer" }}
+                bg={useColorModeValue("gray.100", "gray.700")}
+                py={2}
+                px={3}
+                borderRadius="lg"
+                _hover={{
+                  bg: useColorModeValue("gray.200", "gray.600"),
+                  cursor: "pointer",
+                }}
                 onClick={() => {
                   navigator.clipboard.writeText(paymaster.paymaster);
                   toast({
                     title: "Address copied to clipboard",
                     status: "success",
-                    duration: 5000,
+                    duration: 3000,
                     isClosable: true,
                   });
                 }}
               >
-                <Box as={FaLink} size="12px" color="gray.500" mr={2} />
-                <Text fontSize="md" fontWeight="medium" color="gray.700">
+                <Box as={FaLink} size="16px" color={mutedTextColor} mr={3} />
+                <Text fontSize="md" fontWeight="medium" color={textColor}>
                   {abbreviatedAddress}
                 </Text>
               </Flex>
             </Tooltip>
-            <Text fontSize="lg" fontWeight="bold" textAlign="center">
-              Balance: {balance} ETH
-            </Text>
-            <Text fontSize="sm" color="gray.500" textAlign="center">
-              deployed on {localDate}
-            </Text>
-            <ButtonGroup justifyContent="center">
+
+            <Flex
+              justifyContent="center"
+              alignItems="center"
+              flexDirection="column"
+            >
+              <Text fontSize="sm" color={mutedTextColor} mb={1}>
+                Balance
+              </Text>
+              <Flex alignItems="center">
+                <Box as={FaEthereum} size="24px" color="blue.500" mr={2} />
+                <Text fontSize="2xl" fontWeight="bold" color={textColor}>
+                  {parseFloat(balance).toFixed(4)} ETH
+                </Text>
+              </Flex>
+            </Flex>
+
+            <Flex alignItems="center" justifyContent="center">
+              <Box
+                as={FaCalendarAlt}
+                size="14px"
+                color={mutedTextColor}
+                mr={2}
+              />
+              <Text fontSize="sm" color={mutedTextColor}>
+                Deployed on {localDate}
+              </Text>
+            </Flex>
+
+            <ButtonGroup justifyContent="center" spacing={4}>
               <Button
                 colorScheme="blue"
-                onClick={() => setIsFooterOpen(!isFooterOpen)}
+                variant={isDepositOpen ? "solid" : "outline"}
+                onClick={() => {
+                  setIsDepositOpen(!isDepositOpen);
+                  setIsWithdrawOpen(false);
+                }}
               >
-                {isFooterOpen ? "Close" : "Deposit"}
-              </Button>
-              <Button colorScheme="blue" onClick={handleWithdraw}>
-                Withdraw
+                {isDepositOpen ? "Close" : "Deposit"}
               </Button>
               <Button
                 colorScheme="blue"
+                variant={isWithdrawOpen ? "solid" : "outline"}
+                onClick={() => {
+                  setIsWithdrawOpen(!isWithdrawOpen);
+                  setIsDepositOpen(false);
+                }}
+              >
+                {isWithdrawOpen ? "Close" : "Withdraw"}
+              </Button>
+              <Button
+                colorScheme="blue"
+                variant="ghost"
                 onClick={() =>
                   router.push(`/paymasters/${paymaster.paymaster}`)
                 }
@@ -210,11 +268,11 @@ const PaymasterCard = ({ paymaster }: PaymasterCardProps) => {
                 Details
               </Button>
             </ButtonGroup>
-          </Stack>
+          </VStack>
         </CardBody>
-        {isFooterOpen && (
+        {isDepositOpen && (
           <CardFooter justifyContent="center">
-            <form onSubmit={formik.handleSubmit}>
+            <form onSubmit={depositFormik.handleSubmit}>
               <VStack spacing={4}>
                 <FormControl>
                   <FormLabel htmlFor="deposit">Deposit Amount</FormLabel>
@@ -227,8 +285,8 @@ const PaymasterCard = ({ paymaster }: PaymasterCardProps) => {
                       name="deposit"
                       type="number"
                       variant="filled"
-                      onChange={formik.handleChange}
-                      value={formik.values.deposit}
+                      onChange={depositFormik.handleChange}
+                      value={depositFormik.values.deposit}
                     />
                   </InputGroup>
                 </FormControl>
@@ -238,7 +296,39 @@ const PaymasterCard = ({ paymaster }: PaymasterCardProps) => {
                   width="full"
                   isLoading={isWritePending || isLoading}
                 >
-                  Deposit
+                  Confirm Deposit
+                </Button>
+              </VStack>
+            </form>
+          </CardFooter>
+        )}
+        {isWithdrawOpen && (
+          <CardFooter justifyContent="center">
+            <form onSubmit={withdrawFormik.handleSubmit}>
+              <VStack spacing={4}>
+                <FormControl>
+                  <FormLabel htmlFor="withdraw">Withdraw Amount</FormLabel>
+                  <InputGroup>
+                    <InputLeftElement pointerEvents="none">
+                      <FaEthereum color="gray.300" />
+                    </InputLeftElement>
+                    <Input
+                      id="withdraw"
+                      name="withdraw"
+                      type="number"
+                      variant="filled"
+                      onChange={withdrawFormik.handleChange}
+                      value={withdrawFormik.values.withdraw}
+                    />
+                  </InputGroup>
+                </FormControl>
+                <Button
+                  type="submit"
+                  colorScheme="blue"
+                  width="full"
+                  isLoading={isWritePending || isLoading}
+                >
+                  Confirm Withdraw
                 </Button>
               </VStack>
             </form>
