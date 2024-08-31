@@ -4,17 +4,28 @@ import CenteredMessage from "@/components/utils/message/CenteredMessage";
 import PaymasterCreateForm from "@/components/paymasters/create";
 import TransactionResult from "@/components/utils/transaction/TransactionResult";
 import { useAuth, useModal } from "@/hooks";
-import { FUZION_ROUTER_ABI, FUZION_ROUTER_ADDRESS } from "@/libs/contract";
+import {
+  encodeModuleInitData,
+  FUZION_ROUTER_ABI,
+  FUZION_ROUTER_ADDRESS,
+} from "@/libs/contract";
 import { Box, Container, useToast } from "@chakra-ui/react";
 import { useFormik } from "formik";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo } from "react";
-import { encodeFunctionData, keccak256, parseEther, toHex } from "viem";
+import {
+  encodeFunctionData,
+  keccak256,
+  parseAbiParameter,
+  parseEther,
+  toHex,
+} from "viem";
 import {
   useReadContract,
   useSendTransaction,
   useWaitForTransactionReceipt,
 } from "wagmi";
+import { ModuleInitData } from "@/types";
 
 const Page = () => {
   const toast = useToast();
@@ -45,6 +56,7 @@ const Page = () => {
     owner: `0x${string}`;
     feeTo: `0x${string}`;
     seed: string;
+    moduleInitDataList: ModuleInitData[];
     deposit: number;
   }>({
     initialValues: {
@@ -52,17 +64,27 @@ const Page = () => {
       owner: "0x",
       feeTo: "0x",
       seed: "",
+      moduleInitDataList: [],
       deposit: 0,
     },
     onSubmit: async (values) => {
       // TODO: Add validation
       const ether = parseEther(values.deposit.toString());
       const salt = keccak256(toHex(values.seed));
+      const encodedModuleInitData = encodeModuleInitData(
+        values.moduleInitDataList
+      );
 
       const data = encodeFunctionData({
         abi: FUZION_ROUTER_ABI,
         functionName: "createPaymaster",
-        args: [salt, values.owner, values.feeTo, values.name, "0x"],
+        args: [
+          salt,
+          values.owner,
+          values.feeTo,
+          values.name,
+          encodedModuleInitData,
+        ],
       });
 
       await sendTransactionAsync({

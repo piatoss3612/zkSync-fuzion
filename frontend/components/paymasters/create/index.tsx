@@ -1,4 +1,5 @@
 import { useAuth } from "@/hooks";
+import { ModuleInitData } from "@/types";
 import {
   Button,
   FormControl,
@@ -24,6 +25,7 @@ import {
   FaSeedling,
   FaCheckCircle,
 } from "react-icons/fa";
+import ModuleInitDataList from "./ModuleInitDataList";
 
 interface PaymasterCreateFormProps {
   formik: FormikProps<{
@@ -31,6 +33,7 @@ interface PaymasterCreateFormProps {
     owner: `0x${string}`;
     feeTo: `0x${string}`;
     seed: string;
+    moduleInitDataList: ModuleInitData[];
     deposit: number;
   }>;
   isLoading: boolean;
@@ -144,6 +147,13 @@ const PaymasterCreateForm = ({
               String to generate unique paymaster address
             </FormHelperText>
           </FormControl>
+          {/* ModuleInitData Here */}
+          <ModuleInitDataList
+            moduleInitDataList={formik.values.moduleInitDataList}
+            setModuleInitDataList={(newList) =>
+              formik.setFieldValue("moduleInitDataList", newList)
+            }
+          />
           <FormControl>
             <FormLabel htmlFor="deposit">Initial Deposit</FormLabel>
             <InputGroup>
