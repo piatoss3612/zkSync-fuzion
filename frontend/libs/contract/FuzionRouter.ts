@@ -1,5 +1,5 @@
 const FUZION_ROUTER_ADDRESS =
-  "0x691b0BA0e5Ea8633821c10BEA834E82225a54A14" as `0x${string}`;
+  "0xEDc5E43Be94160cA59fF07226c031492Fbb6d647" as `0x${string}`;
 const FUZION_ROUTER_ABI = [
   {
     inputs: [
@@ -191,6 +191,35 @@ const FUZION_ROUTER_ABI = [
     ],
     name: "PaymasterCreated",
     type: "event",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "_salt",
+        type: "bytes32",
+      },
+      {
+        internalType: "address",
+        name: "_owner",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "_feeTo",
+        type: "address",
+      },
+    ],
+    name: "calculatePaymasterAddress",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
   },
   {
     inputs: [

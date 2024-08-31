@@ -29,11 +29,13 @@ interface PaymasterCreateFormProps {
     deposit: number;
   }>;
   isLoading: boolean;
+  expectedAddress: `0x${string}` | undefined;
 }
 
 const PaymasterCreateForm = ({
   formik,
   isLoading,
+  expectedAddress,
 }: PaymasterCreateFormProps) => {
   const { address } = useAuth();
   const helperTextColor = useColorModeValue("gray.600", "gray.400");
@@ -153,6 +155,20 @@ const PaymasterCreateForm = ({
               Amount of ETH to deposit initially
             </FormHelperText>
           </FormControl>
+          {expectedAddress && (
+            <FormControl>
+              <FormLabel>Expected Address</FormLabel>
+              <InputGroup>
+                <InputLeftElement pointerEvents="none">
+                  <FaUser color="gray.300" />
+                </InputLeftElement>
+                <Input value={expectedAddress} isReadOnly variant="filled" />
+              </InputGroup>
+              <FormHelperText color={helperTextColor}>
+                Address that will be created
+              </FormHelperText>
+            </FormControl>
+          )}
           <Button
             type="submit"
             colorScheme="blue"
