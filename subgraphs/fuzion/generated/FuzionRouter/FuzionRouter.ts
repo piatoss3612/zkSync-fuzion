@@ -133,6 +133,45 @@ export class FuzionRouter extends ethereum.SmartContract {
     return new FuzionRouter("FuzionRouter", address);
   }
 
+  calculatePaymasterAddress(
+    _salt: Bytes,
+    _owner: Address,
+    _feeTo: Address,
+  ): Address {
+    let result = super.call(
+      "calculatePaymasterAddress",
+      "calculatePaymasterAddress(bytes32,address,address):(address)",
+      [
+        ethereum.Value.fromFixedBytes(_salt),
+        ethereum.Value.fromAddress(_owner),
+        ethereum.Value.fromAddress(_feeTo),
+      ],
+    );
+
+    return result[0].toAddress();
+  }
+
+  try_calculatePaymasterAddress(
+    _salt: Bytes,
+    _owner: Address,
+    _feeTo: Address,
+  ): ethereum.CallResult<Address> {
+    let result = super.tryCall(
+      "calculatePaymasterAddress",
+      "calculatePaymasterAddress(bytes32,address,address):(address)",
+      [
+        ethereum.Value.fromFixedBytes(_salt),
+        ethereum.Value.fromAddress(_owner),
+        ethereum.Value.fromAddress(_feeTo),
+      ],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toAddress());
+  }
+
   factory(): Address {
     let result = super.call("factory", "factory():(address)", []);
 

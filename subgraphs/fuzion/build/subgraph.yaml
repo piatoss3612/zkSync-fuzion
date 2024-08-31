@@ -8,9 +8,9 @@ dataSources:
     name: FuzionRouter
     network: zksync-era-sepolia
     source:
-      address: "0x691b0BA0e5Ea8633821c10BEA834E82225a54A14"
+      address: "0xEDc5E43Be94160cA59fF07226c031492Fbb6d647"
       abi: FuzionRouter
-      startBlock: 3709582
+      startBlock: 3710050
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
