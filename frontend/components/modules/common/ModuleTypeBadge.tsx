@@ -1,6 +1,17 @@
-import { Badge } from "@chakra-ui/react";
+import { Badge, BadgeProps } from "@chakra-ui/react";
 
-const ModuleTypeBadge = ({ moduleType }: { moduleType: number }) => {
+interface ModuleTypeBadgeProps extends Omit<BadgeProps, "colorScheme"> {
+  moduleType: number;
+  size?: string;
+  width?: string;
+}
+
+const ModuleTypeBadge = ({
+  moduleType,
+  size = "md",
+  width,
+  ...props
+}: ModuleTypeBadgeProps) => {
   let color: string;
   let label: string;
 
@@ -23,7 +34,16 @@ const ModuleTypeBadge = ({ moduleType }: { moduleType: number }) => {
   }
 
   return (
-    <Badge colorScheme={color} variant="solid" borderRadius="full" px={2}>
+    <Badge
+      colorScheme={color}
+      variant="solid"
+      borderRadius="full"
+      px={2}
+      fontSize={size}
+      width={width}
+      fontFamily={""}
+      {...props}
+    >
       {label}
     </Badge>
   );

@@ -7,7 +7,6 @@ import {
   Heading,
   Text,
   VStack,
-  Divider,
   ButtonGroup,
   GridItem,
   useToast,
@@ -25,7 +24,7 @@ import {
   FUZION_ROUTER_ABI,
   FUZION_ROUTER_ADDRESS,
 } from "@/libs/contract";
-import { FaStar, FaLink, FaCalendarAlt } from "react-icons/fa";
+import { FaStar, FaLink, FaCalendarAlt, FaInfoCircle } from "react-icons/fa";
 
 interface ModuleCardProps {
   module: ModuleRegistered;
@@ -84,7 +83,12 @@ const ModuleCard = ({ module }: ModuleCardProps) => {
         transition="all 0.3s"
       >
         <CardHeader bg={headerBgColor} color="white" py={4}>
-          <Heading size="lg" textAlign="center" fontWeight="bold">
+          <Heading
+            size="lg"
+            textAlign="center"
+            fontWeight="bold"
+            fontFamily={""}
+          >
             {module.name}
           </Heading>
         </CardHeader>
@@ -116,17 +120,23 @@ const ModuleCard = ({ module }: ModuleCardProps) => {
               </Flex>
             </Tooltip>
 
-            <Flex justifyContent="space-between" alignItems="center" px={2}>
-              <ModuleTypeBadge moduleType={module.moduleType} />
+            <Flex justifyContent="space-between" alignItems="center">
+              <ModuleTypeBadge
+                moduleType={module.moduleType}
+                size="sm"
+                px={3}
+                py={1}
+              />
               <Flex
                 alignItems="center"
                 bg={addressBgColor}
                 py={1}
                 px={3}
                 borderRadius="full"
+                boxShadow="sm"
               >
-                <FaStar color="gold" size="16" />
-                <Text ml={2} fontSize="md" fontWeight="bold" color={textColor}>
+                <FaStar color="gold" size="14" />
+                <Text ml={2} fontSize="sm" fontWeight="bold" color={textColor}>
                   {rating.toFixed(1)}
                 </Text>
               </Flex>
@@ -146,11 +156,12 @@ const ModuleCard = ({ module }: ModuleCardProps) => {
 
             <ButtonGroup justifyContent="center">
               <Button
-                colorScheme="blue"
                 onClick={() => router.push(`/modules/${module.module}`)}
-                isDisabled={true} // TODO: Enable when module details page is ready
+                colorScheme="blue"
+                variant="solid"
                 _hover={{ transform: "translateY(-1px)", boxShadow: "sm" }}
                 transition="all 0.2s"
+                leftIcon={<FaInfoCircle />}
               >
                 Details
               </Button>

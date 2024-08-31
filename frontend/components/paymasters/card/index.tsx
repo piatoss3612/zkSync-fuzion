@@ -29,7 +29,12 @@ import {
 import { useFormik } from "formik";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import { FaLink, FaEthereum, FaCalendarAlt } from "react-icons/fa";
+import {
+  FaLink,
+  FaEthereum,
+  FaCalendarAlt,
+  FaInfoCircle,
+} from "react-icons/fa";
 import { encodeFunctionData, formatUnits, parseEther } from "viem";
 import {
   useBalance,
@@ -171,7 +176,12 @@ const PaymasterCard = ({ paymaster }: PaymasterCardProps) => {
         transition="all 0.3s"
       >
         <CardHeader bg={headerBgColor} color="white" py={4}>
-          <Heading size="lg" textAlign="center" fontWeight="bold">
+          <Heading
+            size="lg"
+            textAlign="center"
+            fontWeight="bold"
+            fontFamily={""}
+          >
             {paymaster.name}
           </Heading>
         </CardHeader>
@@ -237,10 +247,12 @@ const PaymasterCard = ({ paymaster }: PaymasterCardProps) => {
               </Text>
             </Flex>
 
-            <ButtonGroup justifyContent="center" spacing={4}>
+            <ButtonGroup justifyContent="center" spacing={3}>
               <Button
                 colorScheme="blue"
-                variant={isDepositOpen ? "solid" : "outline"}
+                variant={isDepositOpen ? "outline" : "solid"}
+                _hover={{ transform: "translateY(-1px)", boxShadow: "sm" }}
+                transition="all 0.2s"
                 onClick={() => {
                   setIsDepositOpen(!isDepositOpen);
                   setIsWithdrawOpen(false);
@@ -250,7 +262,9 @@ const PaymasterCard = ({ paymaster }: PaymasterCardProps) => {
               </Button>
               <Button
                 colorScheme="blue"
-                variant={isWithdrawOpen ? "solid" : "outline"}
+                variant={isWithdrawOpen ? "outline" : "solid"}
+                _hover={{ transform: "translateY(-1px)", boxShadow: "sm" }}
+                transition="all 0.2s"
                 onClick={() => {
                   setIsWithdrawOpen(!isWithdrawOpen);
                   setIsDepositOpen(false);
@@ -260,10 +274,13 @@ const PaymasterCard = ({ paymaster }: PaymasterCardProps) => {
               </Button>
               <Button
                 colorScheme="blue"
-                variant="ghost"
+                variant="solid"
+                _hover={{ transform: "translateY(-1px)", boxShadow: "sm" }}
+                transition="all 0.2s"
                 onClick={() =>
                   router.push(`/paymasters/${paymaster.paymaster}`)
                 }
+                leftIcon={<FaInfoCircle />}
               >
                 Details
               </Button>
