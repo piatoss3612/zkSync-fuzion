@@ -43,6 +43,7 @@ const Navbar = () => {
       justify={{ base: "space-between" }}
       wrap="wrap"
       px="1.6rem"
+      py="0.4rem"
       top="0"
       left="0"
       right="0"

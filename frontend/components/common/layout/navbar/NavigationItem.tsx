@@ -22,7 +22,7 @@ const NavigationItem = ({
       key={item.name}
       mx={mx}
       _hover={{ color: "blue.500" }}
-      fontSize="lg"
+      fontSize="xl"
       fontWeight="bold"
       cursor="pointer"
       onClick={() => handleNavigation(item.path)}
