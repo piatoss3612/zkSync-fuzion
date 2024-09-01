@@ -31,17 +31,17 @@ $  yarn hardhat deploy-zksync --script deployFuzionRouter.ts
 yarn run v1.22.22
 
 Starting deployment process of "FuzionRouter"...
-Estimated deployment cost: 0.0146193409 ETH
+Estimated deployment cost: 0.002532147 ETH
 
 "FuzionRouter" was successfully deployed:
- - Contract address: 0xEDc5E43Be94160cA59fF07226c031492Fbb6d647
+ - Contract address: 0x77af4B00e1E6b9212099AaF7201dECE10074B408
  - Contract source: contracts/FuzionRouter.sol:FuzionRouter
  - Encoded constructor arguments: 0x00000000000000000000000082e7fc2d13ee7515f182d445974e0788a181d7ac000000000000000000000000965b0e63e00e7805569ee3b428cf96330dfc57ef
 
 Requesting contract verification...
-Your verification ID is: 24397
+Your verification ID is: 24450
 Contract successfully verified on ZKsync block explorer!
-Done in 18.85s.
+Done in 16.68s.
 ```
 
 ### Deploying the ERC721Gate Module

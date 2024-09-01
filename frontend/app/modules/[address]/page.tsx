@@ -242,7 +242,9 @@ const Page = ({
       >
         <VStack spacing={8} align="stretch">
           <Flex justifyContent="space-between" alignItems="center">
-            <Heading size="xl">{moduleMetadata?.name}</Heading>
+            <Heading size="xl" fontFamily={""}>
+              {moduleMetadata?.name}
+            </Heading>
             <ModuleTypeBadge
               moduleType={moduleMetadata?.moduleType || 0}
               size="md"
