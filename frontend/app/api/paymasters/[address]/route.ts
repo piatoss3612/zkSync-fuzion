@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { PaymasterCreateds } from "@/types";
 
 const SUBGRAPH_URL =
-  "https://api.studio.thegraph.com/query/68882/fuzion/version/latest";
+  "https://api.studio.thegraph.com/query/68882/fuzion/v0.0.6";
 
 const GET = async (
   req: Request,
