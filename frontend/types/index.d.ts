@@ -1,3 +1,5 @@
+import { Address } from "viem";
+
 interface NavItem {
   name: string;
   path: string;
@@ -41,6 +43,13 @@ interface ModuleMetadata {
   installDataSignature: string;
 }
 
+interface ModuleInitData {
+  moduleType: number;
+  isDefault: boolean;
+  module: Address;
+  initData: `0x${string}`;
+}
+
 export {
   NavItem,
   PaymasterCreated,
@@ -49,4 +58,5 @@ export {
   ModuleRegistered,
   ModuleRegistereds,
   ModuleMetadata,
+  ModuleInitData,
 };

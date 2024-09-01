@@ -75,6 +75,10 @@ contract FuzionRouter is IFuzionRouter, Ownable {
             revert FuzionRouter__ModuleAlreadyRated(_module, rater);
         }
 
+        // set rater as rated
+        _moduleRatedBy[_module][rater] = true;
+
+        // update rating data
         RatingData storage ratingData = _moduleRatings[_module];
 
         ratingData.accumulativeRating += uint128(_rating);

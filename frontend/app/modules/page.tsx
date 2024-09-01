@@ -127,11 +127,12 @@ const Page = () => {
             placeholder="Search"
             value=""
             onChange={() => {}}
-            size="md"
+            size="lg"
             width="auto"
             isDisabled={true}
           />
           <Button
+            size="lg"
             leftIcon={<Icon as={BsPlusLg} />}
             colorScheme="blue"
             _hover={{ bg: "blue.600" }}

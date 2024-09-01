@@ -5,6 +5,7 @@ import {
   CardBody,
   CardHeader,
   Heading,
+  HStack,
   Text,
   VStack,
   ButtonGroup,
@@ -21,10 +22,17 @@ import ModuleTypeBadge from "../common/ModuleTypeBadge";
 import { useReadContract } from "wagmi";
 import {
   abbreviateAddress,
+  formatRatingCount,
   FUZION_ROUTER_ABI,
   FUZION_ROUTER_ADDRESS,
 } from "@/libs/contract";
-import { FaStar, FaLink, FaCalendarAlt, FaInfoCircle } from "react-icons/fa";
+import {
+  FaStar,
+  FaLink,
+  FaCalendarAlt,
+  FaInfoCircle,
+  FaUsers,
+} from "react-icons/fa";
 
 interface ModuleCardProps {
   module: ModuleRegistered;
@@ -50,6 +58,10 @@ const ModuleCard = ({ module }: ModuleCardProps) => {
     const ratingValue =
       Number(accumulativeRating) / Number(accumulativeRatingCount);
     return Math.round(ratingValue * 10) / 10;
+  }, [data]);
+  const ratedCount = useMemo(() => {
+    if (!data) return 0;
+    return Number(data.accumulativeRatingCount);
   }, [data]);
 
   const abbreviatedAddress = abbreviateAddress(module.module);
@@ -127,6 +139,14 @@ const ModuleCard = ({ module }: ModuleCardProps) => {
                 px={3}
                 py={1}
               />
+              <Tooltip label={`${ratedCount} total ratings`}>
+                <Flex alignItems="center">
+                  <Box as={FaUsers} size="14px" color={mutedTextColor} mr={2} />
+                  <Text fontSize="sm" fontWeight="bold" color={textColor}>
+                    {formatRatingCount(ratedCount)}
+                  </Text>
+                </Flex>
+              </Tooltip>
               <Flex
                 alignItems="center"
                 bg={addressBgColor}

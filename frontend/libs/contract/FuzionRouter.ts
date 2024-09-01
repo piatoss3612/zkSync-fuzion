@@ -1,5 +1,5 @@
 const FUZION_ROUTER_ADDRESS =
-  "0xEDc5E43Be94160cA59fF07226c031492Fbb6d647" as `0x${string}`;
+  "0x77af4B00e1E6b9212099AaF7201dECE10074B408" as `0x${string}`;
 const FUZION_ROUTER_ABI = [
   {
     inputs: [

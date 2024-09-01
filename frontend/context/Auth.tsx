@@ -4,7 +4,7 @@ import { createContext, useCallback, useEffect } from "react";
 import { getCsrfToken, signIn, signOut, useSession } from "next-auth/react";
 import { SiweMessage } from "siwe";
 import { useAccount, useSignMessage, useSwitchChain } from "wagmi";
-import { zkSync, zkSyncSepoliaTestnet } from "viem/zksync";
+import { zkSyncSepoliaTestnet } from "viem/zksync";
 import { useToast } from "@chakra-ui/react";
 import { Session } from "next-auth";
 
@@ -124,7 +124,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
 
     // Switch to ZKsync Sepolia Testnet if the chain is not ZKsync or ZKsync Sepolia Testnet
-    if (chainId != zkSync.id && chainId != zkSyncSepoliaTestnet.id) {
+    if (chainId != zkSyncSepoliaTestnet.id) {
       switchChain({
         chainId: zkSyncSepoliaTestnet.id,
       });

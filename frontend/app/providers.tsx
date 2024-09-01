@@ -4,7 +4,7 @@ import { ChakraProvider } from "@chakra-ui/react";
 import { getDefaultConfig, RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { zkSync, zkSyncSepoliaTestnet } from "viem/zksync";
+import { zkSyncSepoliaTestnet } from "viem/zksync";
 import { WagmiProvider } from "wagmi";
 import { SessionProvider } from "next-auth/react";
 import { AuthProvider, ModalProvider } from "@/context";
@@ -12,7 +12,7 @@ import { AuthProvider, ModalProvider } from "@/context";
 const config = getDefaultConfig({
   appName: "Fuzion",
   projectId: process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID || "",
-  chains: [zkSync, zkSyncSepoliaTestnet],
+  chains: [zkSyncSepoliaTestnet],
   ssr: true,
 });
 

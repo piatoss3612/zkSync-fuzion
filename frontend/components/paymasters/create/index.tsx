@@ -1,4 +1,5 @@
 import { useAuth } from "@/hooks";
+import { ModuleInitData } from "@/types";
 import {
   Button,
   FormControl,
@@ -11,6 +12,10 @@ import {
   FormHelperText,
   Box,
   useColorModeValue,
+  Flex,
+  Text,
+  Tooltip,
+  useToast,
 } from "@chakra-ui/react";
 import { FormikProps } from "formik";
 import {
@@ -18,7 +23,9 @@ import {
   FaUser,
   FaMoneyBillWave,
   FaSeedling,
+  FaCheckCircle,
 } from "react-icons/fa";
+import ModuleInitDataList from "./ModuleInitDataList";
 
 interface PaymasterCreateFormProps {
   formik: FormikProps<{
@@ -26,6 +33,7 @@ interface PaymasterCreateFormProps {
     owner: `0x${string}`;
     feeTo: `0x${string}`;
     seed: string;
+    moduleInitDataList: ModuleInitData[];
     deposit: number;
   }>;
   isLoading: boolean;
@@ -37,8 +45,11 @@ const PaymasterCreateForm = ({
   isLoading,
   expectedAddress,
 }: PaymasterCreateFormProps) => {
+  const toast = useToast();
   const { address } = useAuth();
   const helperTextColor = useColorModeValue("gray.600", "gray.400");
+  const expectedAddressBg = useColorModeValue("blue.50", "blue.900");
+  const expectedAddressBorder = useColorModeValue("blue.200", "blue.700");
 
   return (
     <Box borderRadius="lg" p={4}>
@@ -136,6 +147,13 @@ const PaymasterCreateForm = ({
               String to generate unique paymaster address
             </FormHelperText>
           </FormControl>
+          {/* ModuleInitData Here */}
+          <ModuleInitDataList
+            moduleInitDataList={formik.values.moduleInitDataList}
+            setModuleInitDataList={(newList) =>
+              formik.setFieldValue("moduleInitDataList", newList)
+            }
+          />
           <FormControl>
             <FormLabel htmlFor="deposit">Initial Deposit</FormLabel>
             <InputGroup>
@@ -156,18 +174,38 @@ const PaymasterCreateForm = ({
             </FormHelperText>
           </FormControl>
           {expectedAddress && (
-            <FormControl>
-              <FormLabel>Expected Address</FormLabel>
-              <InputGroup>
-                <InputLeftElement pointerEvents="none">
-                  <FaUser color="gray.300" />
-                </InputLeftElement>
-                <Input value={expectedAddress} isReadOnly variant="filled" />
-              </InputGroup>
-              <FormHelperText color={helperTextColor}>
-                Address that will be created
-              </FormHelperText>
-            </FormControl>
+            <Box
+              borderWidth={1}
+              borderRadius="md"
+              p={4}
+              bg={expectedAddressBg}
+              borderColor={expectedAddressBorder}
+            >
+              <Flex alignItems="center" mb={2}>
+                <FaCheckCircle color="green" />
+                <Text fontWeight="bold" ml={2}>
+                  Expected Paymaster Address
+                </Text>
+              </Flex>
+              <Tooltip label="Click to copy" placement="top">
+                <Text
+                  fontSize="md"
+                  fontFamily=""
+                  cursor="pointer"
+                  onClick={() => {
+                    navigator.clipboard.writeText(expectedAddress);
+                    toast({
+                      title: "Address copied",
+                      status: "success",
+                      duration: 3000,
+                      isClosable: true,
+                    });
+                  }}
+                >
+                  {expectedAddress}
+                </Text>
+              </Tooltip>
+            </Box>
           )}
           <Button
             type="submit"

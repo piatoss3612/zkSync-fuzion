@@ -50,6 +50,7 @@ const WalletButton = () => {
                     color="black"
                     rounded="xl"
                     boxShadow="md"
+                    size="lg"
                     _hover={{
                       bgGradient: "linear(to-r, gray.100, gray.200)",
                     }}
@@ -68,6 +69,7 @@ const WalletButton = () => {
                     color="white"
                     rounded="xl"
                     boxShadow="md"
+                    size="lg"
                     _hover={{ bgGradient: "linear(to-r, red.200, red.400)" }}
                     onClick={openChainModal}
                   >
@@ -85,6 +87,14 @@ const WalletButton = () => {
                   {!isSignedIn && (
                     <Button
                       w={{ base: "auto", lg: "120px" }}
+                      bg={{ base: "gray.100", lg: "white" }}
+                      color="black"
+                      rounded="xl"
+                      boxShadow="md"
+                      size="lg"
+                      _hover={{
+                        bgGradient: "linear(to-r, gray.100, gray.200)",
+                      }}
                       onClick={handleSignIn}
                     >
                       Sign In
@@ -92,7 +102,7 @@ const WalletButton = () => {
                   )}
                   {isSignedIn && (
                     <>
-                      <Button onClick={openChainModal}>
+                      <Button onClick={openChainModal} rounded="xl" size="lg">
                         {chain.hasIcon && (
                           <div
                             style={{
@@ -119,7 +129,12 @@ const WalletButton = () => {
                         {chain.name}
                       </Button>
                       <Menu>
-                        <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
+                        <MenuButton
+                          as={Button}
+                          rightIcon={<ChevronDownIcon />}
+                          rounded="xl"
+                          size="lg"
+                        >
                           {account.displayName}
                         </MenuButton>
                         <MenuList color={"black"}>

@@ -11,7 +11,7 @@ const Logo = () => {
         _hover={{ textDecoration: "none" }}
       >
         <Image src={LogoImage.src} boxSize="64px" alt="Fuzion Logo" />
-        <Text fontSize="4xl" fontWeight="bold" ml={2}>
+        <Text fontSize="4xl" fontWeight="bold" ml={3}>
           Fuzion
         </Text>
       </Link>
