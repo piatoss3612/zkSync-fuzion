@@ -63,3 +63,23 @@ Your verification ID is: 24159
 Contract successfully verified on ZKsync block explorer!
 Done in 14.24s.
 ```
+
+### Deploying the MockERC721
+
+```bash
+$ yarn hardhat deploy-zksync --script deployMockERC721.ts
+yarn run v1.22.22
+
+Starting deployment process of "MockERC721"...
+Estimated deployment cost: 0.0031611735 ETH
+
+"MockERC721" was successfully deployed:
+ - Contract address: 0xfa2194Bbd8b18233Fb69204736cBB7770eBfFD72
+ - Contract source: contracts/mock/MockERC721.sol:MockERC721
+ - Encoded constructor arguments: 0x
+
+Requesting contract verification...
+Your verification ID is: 24456
+Contract successfully verified on ZKsync block explorer!
+Done in 12.69s.
+```
