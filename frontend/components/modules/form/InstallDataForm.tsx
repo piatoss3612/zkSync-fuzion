@@ -12,7 +12,12 @@ import {
   useClipboard,
   useColorModeValue,
 } from "@chakra-ui/react";
-import { Abi, AbiParameter, encodeFunctionData } from "viem";
+import {
+  Abi,
+  AbiParameter,
+  encodeAbiParameters,
+  encodeFunctionData,
+} from "viem";
 import { FaCopy } from "react-icons/fa";
 
 interface InstallDataFormProps {
@@ -40,18 +45,14 @@ const InstallDataForm: React.FC<InstallDataFormProps> = ({ abi }) => {
         throw new Error("Invalid ABI: first element is not a function");
       }
 
-      const args = functionAbi.inputs.map((input) => {
+      const values = functionAbi.inputs.map((input) => {
         const value = formValues[input.name || ""];
         return parseInputValue(input, value);
       });
 
-      const encoded = encodeFunctionData({
-        abi: abi as Abi,
-        functionName: functionAbi.name,
-        args,
-      });
+      const encodedData = encodeAbiParameters(functionAbi.inputs, values);
 
-      setEncodedData(encoded);
+      setEncodedData(encodedData);
       toast({
         title: "Data encoded successfully",
         status: "success",
