@@ -52,6 +52,7 @@ const Page = ({
   const bgColor = useColorModeValue("white", "gray.800");
   const borderColor = useColorModeValue("gray.200", "gray.600");
   const mutedTextColor = useColorModeValue("gray.500", "gray.400");
+  const installDataColor = useColorModeValue("gray.100", "gray.700");
 
   const { isSignedIn, address: userAddress } = useAuth();
   const { openModal } = useModal();
@@ -294,8 +295,6 @@ const Page = ({
           )}
 
           <VStack align="start" spacing={4}>
-            {" "}
-            // Increased spacing
             <Flex>
               <Text fontWeight="bold" width="100px">
                 Version:
@@ -323,7 +322,7 @@ const Page = ({
             <Text
               fontSize="sm"
               fontFamily="monospace"
-              bg={useColorModeValue("gray.100", "gray.700")}
+              bg={installDataColor}
               p={2}
               borderRadius="md"
               noOfLines={2}
