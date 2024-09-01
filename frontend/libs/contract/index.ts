@@ -25,6 +25,15 @@ const initializeAbiParameter = [
   },
 ];
 
+const formatRatingCount = (count: number) => {
+  if (count >= 1000000) {
+    return (count / 1000000).toFixed(1) + "M";
+  } else if (count >= 1000) {
+    return (count / 1000).toFixed(1) + "K";
+  }
+  return count.toString();
+};
+
 const encodeModuleInitData = (moduleInitDataList: ModuleInitData[]) => {
   return encodeAbiParameters(initializeAbiParameter, [moduleInitDataList]);
 };
@@ -38,4 +47,5 @@ export {
   IMODULE_ABI,
   abbreviateAddress,
   encodeModuleInitData,
+  formatRatingCount,
 };

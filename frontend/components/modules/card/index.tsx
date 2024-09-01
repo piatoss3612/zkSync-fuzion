@@ -22,6 +22,7 @@ import ModuleTypeBadge from "../common/ModuleTypeBadge";
 import { useReadContract } from "wagmi";
 import {
   abbreviateAddress,
+  formatRatingCount,
   FUZION_ROUTER_ABI,
   FUZION_ROUTER_ADDRESS,
 } from "@/libs/contract";
@@ -41,15 +42,6 @@ const ModuleCard = ({ module }: ModuleCardProps) => {
   const router = useRouter();
   const toast = useToast();
   const localDate = new Date(module.blockTimestamp * 1000).toLocaleString();
-
-  const formatRatingCount = (count: number) => {
-    if (count >= 1000000) {
-      return (count / 1000000).toFixed(1) + "M";
-    } else if (count >= 1000) {
-      return (count / 1000).toFixed(1) + "K";
-    }
-    return count.toString();
-  };
 
   const { data } = useReadContract({
     abi: FUZION_ROUTER_ABI,
